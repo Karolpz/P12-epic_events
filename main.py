@@ -1,6 +1,7 @@
-def main():
-    print("Hello from p12-epic-events!")
+from models.base import Base, engine
+from models import Collaborator, Client, Contract, Event
 
+# Base.metadata.drop_all(engine)
+Base.metadata.create_all(engine)
+print("Tables créées avec succès !")
 
-if __name__ == "__main__":
-    main()
