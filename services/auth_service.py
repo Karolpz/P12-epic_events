@@ -1,9 +1,6 @@
 from models import Collaborator
-from argon2 import PasswordHasher
 
-ph = PasswordHasher()
-
-class AuthController:
+class AuthService:
     def __init__(self, session):
         self.session = session
 
@@ -13,18 +10,17 @@ class AuthController:
         if not collaborator:
             return None
         
-        try:
-            ph.verify(collaborator.password, password)
+        if collaborator.verify_password(password):
             return collaborator
-        except:
-            return None
+
+        return None
 
     def register(self, name, email, password, role):
-        hashed_password = ph.hash(password)
-        new_collaborator = Collaborator(name=name, email=email, password=hashed_password, role=role)
-        self.session.add(new_collaborator)
+        collaborator = Collaborator(name=name, email=email, role=role)
+        collaborator.set_password(password)
+        self.session.add(collaborator)
         self.session.commit()
-        return new_collaborator
+        return collaborator
     
     def logout(self):
         pass

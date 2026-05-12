@@ -23,3 +23,18 @@ class Contract(Base):
 
     def __repr__(self):
         return f"Contract(id={self.id}, amount={self.amount}, amount_to_pay={self.amount_to_pay}, is_signed={self.is_signed})"
+
+    def sign(self):
+        self.is_signed = True
+
+    def sign(self):
+        if self.is_signed:
+            raise Exception("Contrat déjà signé")
+        self.is_signed = True
+
+    def update_amount(self, amount_to_pay):
+        if amount_to_pay < 0:
+            raise Exception("Le montant ne peut pas être négatif")
+        if amount_to_pay > self.amount:
+            raise Exception("Le montant restant ne peut pas dépasser le montant total")
+        self.amount_to_pay = amount_to_pay

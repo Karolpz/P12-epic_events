@@ -2,6 +2,7 @@ from sqlalchemy import Integer, String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 from .base import Base
+from argon2 import PasswordHasher
 
 
 class RoleEnum(enum.Enum):
@@ -13,7 +14,9 @@ class Collaborator(Base):
     __tablename__ = 'collaborators'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    employee_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     role: Mapped[RoleEnum] = mapped_column(Enum(RoleEnum), nullable=False)
@@ -24,3 +27,14 @@ class Collaborator(Base):
 
     def __repr__(self):
         return f"Collaborator(id={self.id}, name={self.name}, email={self.email}, role={self.role.value})"
+    
+    def set_password(self, password):
+        ph = PasswordHasher()
+        self.password = ph.hash(password)
+
+    def verify_password(self, password):
+        ph = PasswordHasher()
+        try:
+            return ph.verify(self.password, password)
+        except:
+            return False

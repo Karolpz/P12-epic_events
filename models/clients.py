@@ -20,7 +20,6 @@ class Client(Base):
     collaborator_id: Mapped[int] = mapped_column(Integer, ForeignKey("collaborators.id"), nullable=True)
 
     collaborator: Mapped["Collaborator"] = relationship("Collaborator", back_populates="clients")
-    events: Mapped[list["Event"]] = relationship("Event", back_populates="client")
     contracts: Mapped[list["Contract"]] = relationship("Contract", back_populates="client")
 
     def __repr__(self):
