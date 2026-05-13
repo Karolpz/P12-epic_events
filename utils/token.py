@@ -1,6 +1,6 @@
 import jwt
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 def generate_token(collaborator):
     secret_key = os.getenv("JWT_SECRET_KEY")
@@ -9,7 +9,7 @@ def generate_token(collaborator):
             "id": collaborator.id,
             "role": collaborator.role.value
         },
-        "exp": datetime.utcnow() + timedelta(days=1)
+        "exp": datetime.now(timezone.utc) + timedelta(days=1)
     }
     token = jwt.encode(payload, secret_key, algorithm="HS256")
     with open(".token", "w") as f:

@@ -1,4 +1,5 @@
 from models import Collaborator
+from utils.token import generate_token, verify_token, get_token, delete_token
 
 class AuthService:
     def __init__(self, session):
@@ -11,6 +12,7 @@ class AuthService:
             return None
         
         if collaborator.verify_password(password):
+            collaborator.token = generate_token(collaborator)
             return collaborator
 
         return None
@@ -23,4 +25,4 @@ class AuthService:
         return collaborator
     
     def logout(self):
-        pass
+        return delete_token()
