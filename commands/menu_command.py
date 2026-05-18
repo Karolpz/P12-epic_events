@@ -1,5 +1,5 @@
 import click
-from utils.token import get_token, delete_token
+from utils.token import get_token, delete_token, verify_token
 from services.auth_service import AuthService
 from commands.auth_command import auth_command
 
@@ -7,7 +7,10 @@ def show_menu():
     while True:
         click.echo("\n Bienvenue sur Epic Events")
         
-        if not get_token():
+        token = get_token()
+        valid_user = verify_token(token)
+            
+        if not valid_user:
             click.echo("1. Se connecter")
             click.echo("0. Quitter")
             
