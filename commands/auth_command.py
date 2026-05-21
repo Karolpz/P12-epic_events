@@ -1,7 +1,7 @@
 import click
 from services.auth_service import AuthService
 from models.base import Session
-from utils import delete_token, get_token
+from utils.token import delete_token, get_token
 
 # def auth_command():
 #     click.echo("Authentification")

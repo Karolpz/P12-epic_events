@@ -2,6 +2,7 @@ from models.base import Base, engine
 from models import Collaborator, Client, Contract, Event
 from utils.token import get_token, verify_token
 from commands.auth_command import login, logout
+from commands.collaborators_command import collaborators
 from models.base import Base, engine, Session
 from models.collaborators import RoleEnum
 import click
@@ -27,6 +28,8 @@ def cli():
 
 cli.add_command(login)
 cli.add_command(logout)
+
+cli.add_command(collaborators)
 
 if __name__ == "__main__":
     cli()
