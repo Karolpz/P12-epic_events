@@ -47,3 +47,50 @@ def add():
             return
         
         click.echo(click.style(f"Collaborateur {name} ajouté avec succès !", fg="green"))
+
+@collaborators.command()
+@click.argument("collab_id", type=int)
+def update(collab_id):
+    valid_user = verify_token(get_token())
+    if not valid_user:
+        click.echo(click.style("Vous devez être connecté.", fg="red"))
+        return
+
+    click.echo("Laissez vide pour ne pas modifier")
+    name = click.prompt("Nouveau nom", default="")
+    email = click.prompt("Nouvel email", default="")
+    password = click.prompt("Nouveau mot de passe", default="", hide_input=True)
+    
+    kwargs = {}
+    if name:
+        kwargs["name"] = name
+    if email:
+        kwargs["email"] = email
+    if password:
+        kwargs["password"] = password
+    
+    with Session() as session:
+        service = CollaboratorsService(session)
+        collab = service.update_collaborator(collab_id, **kwargs)
+        if not collab:
+            click.echo(click.style("Collaborateur non trouvé.", fg="red"))
+            return
+        
+        click.echo(click.style(f"Collaborateur {collab.name} mis à jour avec succès !", fg="green"))
+
+@collaborators.command()
+@click.argument("collab_id", type=int)
+def delete(collab_id):
+    valid_user = verify_token(get_token())
+    if not valid_user:
+        click.echo(click.style("Vous devez être connecté.", fg="red"))
+        return
+    
+    with Session() as session:
+        service = CollaboratorsService(session)
+        success = service.delete_collaborator(collab_id)
+        if not success:
+            click.echo(click.style("Collaborateur non trouvé.", fg="red"))
+            return
+        
+        click.echo(click.style("Collaborateur supprimé avec succès !", fg="green"))

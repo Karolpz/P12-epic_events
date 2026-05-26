@@ -18,3 +18,26 @@ class CollaboratorsService:
         self.session.add(new_collab)
         self.session.commit()
         return new_collab
+    
+    def update_collaborator(self, collab_id, **kwargs):
+        collab = self.session.query(Collaborator).filter(Collaborator.id == collab_id).first()
+        if not collab:
+            return None
+
+        if 'password' in kwargs:
+            collab.set_password(kwargs.pop('password'))
+        
+        for key, value in kwargs.items():
+            setattr(collab, key, value)
+        
+        self.session.commit()
+        return collab
+    
+    def delete_collaborator(self, collab_id):
+        collab = self.session.query(Collaborator).filter(Collaborator.id == collab_id).first()
+        if not collab:
+            return False
+        
+        self.session.delete(collab)
+        self.session.commit()
+        return True

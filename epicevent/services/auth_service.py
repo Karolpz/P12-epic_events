@@ -18,12 +18,5 @@ class AuthService:
 
         return None
 
-    # def register(self, name, email, password, role):
-    #     collaborator = Collaborator(name=name, email=email, role=role)
-    #     collaborator.set_password(password)
-    #     self.session.add(collaborator)
-    #     self.session.commit()
-    #     return collaborator
-    
     def logout(self):
         return delete_token()
