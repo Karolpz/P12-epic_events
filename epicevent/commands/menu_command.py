@@ -1,7 +1,7 @@
 import click
-from utils.token import get_token, delete_token, verify_token
-from services.auth_service import AuthService
-from commands.auth_command import auth_command
+from epicevent.utils.token import get_token, delete_token, verify_token
+from epicevent.services.auth_service import AuthService
+from epicevent.commands.auth_command import auth_command
 
 def show_menu():
     while True:

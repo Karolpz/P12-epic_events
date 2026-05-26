@@ -1,7 +1,8 @@
 import click
-from models.base import Session
-from models.collaborators import Collaborator, RoleEnum
-from utils.token import get_token, verify_token
+from epicevent.models.base import Session
+from epicevent.models.collaborators import Collaborator, RoleEnum
+from epicevent.utils.token import get_token, verify_token
+from epicevent.services.collaborators_service import CollaboratorsService
 
 @click.group()
 def collaborators():
@@ -15,7 +16,8 @@ def list():
         return
     
     with Session() as session:
-        collabs = session.query(Collaborator).all()
+        service = CollaboratorsService(session)
+        collabs = service.list_collaborators()
         if not collabs:
             click.echo(click.style("Aucun collaborateur trouvé.", fg="yellow"))
             return
@@ -34,16 +36,14 @@ def add():
     employee_id = click.prompt("ID de l'employé")
     name = click.prompt("Nom du collaborateur")
     email = click.prompt("Email du collaborateur")
-    password = click.prompt("Mot de passe", hide_input=True)
-    role = click.prompt("Rôle (gestion, commercial, support)", type=click.Choice([r.value for r in RoleEnum]))
+    password = click.prompt("Mot de passe", hide_input=True, confirmation_prompt=True)
+    role = click.prompt("Rôle", type=click.Choice([r.value for r in RoleEnum]))
 
     with Session() as session:
-        if session.query(Collaborator).filter(Collaborator.email == email).first():
+        service = CollaboratorsService(session)
+        new_collab = service.add_collaborator(employee_id, name, email, password, RoleEnum(role))
+        if not new_collab:
             click.echo(click.style("Un collaborateur avec cet email existe déjà.", fg="red"))
             return
         
-        new_collab = Collaborator(employee_id=employee_id, name=name, email=email, role=RoleEnum(role))
-        new_collab.set_password(password)
-        session.add(new_collab)
-        session.commit()
         click.echo(click.style(f"Collaborateur {name} ajouté avec succès !", fg="green"))

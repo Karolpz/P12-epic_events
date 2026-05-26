@@ -1,5 +1,5 @@
-from models import Collaborator
-from utils.token import generate_token, verify_token, get_token, delete_token
+from epicevent.models import Collaborator
+from epicevent.utils.token import generate_token, verify_token, get_token, delete_token
 from sqlalchemy.orm import Session
 
 class AuthService:
@@ -18,12 +18,12 @@ class AuthService:
 
         return None
 
-    def register(self, name, email, password, role):
-        collaborator = Collaborator(name=name, email=email, role=role)
-        collaborator.set_password(password)
-        self.session.add(collaborator)
-        self.session.commit()
-        return collaborator
+    # def register(self, name, email, password, role):
+    #     collaborator = Collaborator(name=name, email=email, role=role)
+    #     collaborator.set_password(password)
+    #     self.session.add(collaborator)
+    #     self.session.commit()
+    #     return collaborator
     
     def logout(self):
         return delete_token()

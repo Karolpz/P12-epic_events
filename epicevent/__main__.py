@@ -1,10 +1,10 @@
-from models.base import Base, engine
-from models import Collaborator, Client, Contract, Event
-from utils.token import get_token, verify_token
-from commands.auth_command import login, logout
-from commands.collaborators_command import collaborators
-from models.base import Base, engine, Session
-from models.collaborators import RoleEnum
+from epicevent.models.base import Base, engine
+from epicevent.models import Collaborator, Client, Contract, Event
+from epicevent.utils.token import get_token, verify_token
+from epicevent.commands.auth_command import login, logout
+from epicevent.commands.collaborators_command import collaborators
+from epicevent.models.base import Base, engine, Session
+from epicevent.models.collaborators import RoleEnum
 import click
 
 
