@@ -1,5 +1,4 @@
 from epicevent.models import Collaborator
-from epicevent.utils.token import generate_token, verify_token, get_token, delete_token
 from sqlalchemy.orm import Session
 
 class CollaboratorsService:

@@ -3,6 +3,7 @@ from epicevent.models import Collaborator, Client, Contract, Event
 from epicevent.utils.token import get_token, verify_token
 from epicevent.commands.auth_command import login, logout
 from epicevent.commands.collaborators_command import collaborators
+from epicevent.commands.client_command import clients
 from epicevent.models.base import Base, engine, Session
 from epicevent.models.collaborators import RoleEnum
 import click
@@ -30,6 +31,8 @@ cli.add_command(login)
 cli.add_command(logout)
 
 cli.add_command(collaborators)
+
+cli.add_command(clients)
 
 if __name__ == "__main__":
     cli()
