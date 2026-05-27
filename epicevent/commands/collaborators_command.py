@@ -3,18 +3,15 @@ from epicevent.models.base import Session
 from epicevent.models.collaborators import Collaborator, RoleEnum
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.collaborators_service import CollaboratorsService
+from epicevent.utils.decorators import login_required
 
 @click.group()
 def collaborators():
     pass
 
 @collaborators.command()
+@login_required
 def list():
-    valid_user = verify_token(get_token())
-    if not valid_user:
-        click.echo(click.style("Vous devez être connecté.", fg="red"))
-        return
-    
     with Session() as session:
         service = CollaboratorsService(session)
         collabs = service.list_collaborators()
@@ -27,12 +24,8 @@ def list():
             click.echo(f"- {collab.name} ({collab.email}) - Rôle: {collab.role.value}")
 
 @collaborators.command()
+@login_required
 def add():
-    valid_user = verify_token(get_token())
-    if not valid_user:
-        click.echo(click.style("Vous devez être connecté.", fg="red"))
-        return
-    
     employee_id = click.prompt("ID de l'employé")
     name = click.prompt("Nom du collaborateur")
     email = click.prompt("Email du collaborateur")
@@ -50,12 +43,8 @@ def add():
 
 @collaborators.command()
 @click.argument("collab_id", type=int)
+@login_required
 def update(collab_id):
-    valid_user = verify_token(get_token())
-    if not valid_user:
-        click.echo(click.style("Vous devez être connecté.", fg="red"))
-        return
-
     click.echo("Laissez vide pour ne pas modifier")
     name = click.prompt("Nouveau nom", default="")
     email = click.prompt("Nouvel email", default="")
@@ -80,12 +69,8 @@ def update(collab_id):
 
 @collaborators.command()
 @click.argument("collab_id", type=int)
+@login_required
 def delete(collab_id):
-    valid_user = verify_token(get_token())
-    if not valid_user:
-        click.echo(click.style("Vous devez être connecté.", fg="red"))
-        return
-    
     with Session() as session:
         service = CollaboratorsService(session)
         success = service.delete_collaborator(collab_id)
