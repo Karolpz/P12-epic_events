@@ -27,10 +27,14 @@ class ContractsService:
         self.session.commit()
         return new_contract
 
-    def update_contract(self, contract_id, **kwargs):
+    def update_contract(self, contract_id, collaborator_id, **kwargs):
         contract = self.session.query(Contract).filter_by(id=contract_id).first()
         if not contract:
             return None
+
+        if contract.collaborator_id != collaborator_id:
+            return None
+
         for key, value in kwargs.items():
             setattr(contract, key, value)
         self.session.commit()

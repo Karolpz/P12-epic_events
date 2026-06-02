@@ -1,5 +1,5 @@
 from epicevent.models.base import Base, engine
-from epicevent.commands.auth_command import login, logout
+from epicevent.commands.auth_command import auth
 from epicevent.commands.collaborators_command import collaborators
 from epicevent.commands.client_command import clients
 from epicevent.commands.contract_command import contracts
@@ -11,23 +11,11 @@ import click
 # Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 
-# with Session() as session:
-#     test_collab = Collaborator(
-#         employee_id="EMP001",
-#         name="Alice",
-#         email="alice@epic.io",
-#         role=RoleEnum.gestion
-#     )
-#     test_collab.set_password("password123")
-#     session.add(test_collab)
-#     session.commit()
-
 @click.group()
 def cli():
     pass
 
-cli.add_command(login)
-cli.add_command(logout)
+cli.add_command(auth)
 
 cli.add_command(collaborators)
 
@@ -36,8 +24,6 @@ cli.add_command(clients)
 cli.add_command(contracts)
 
 cli.add_command(events)
-
-
 
 if __name__ == "__main__":
     cli()

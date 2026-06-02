@@ -30,9 +30,11 @@ class EventsService:
         self.session.commit()
         return new_event
     
-    def update_event(self, event_id, **kwargs):
+    def update_event(self, event_id, collaborator_id, **kwargs):
         event = self.session.query(Event).filter_by(id=event_id).first()
         if not event:
+            return None
+        if event.collaborator_id != collaborator_id:
             return None
         for key, value in kwargs.items():
             setattr(event, key, value)

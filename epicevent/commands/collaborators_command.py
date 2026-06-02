@@ -2,7 +2,7 @@ import click
 from epicevent.models.base import Session
 from epicevent.models.collaborators import Collaborator, RoleEnum
 from epicevent.services.collaborators_service import CollaboratorsService
-from epicevent.utils.decorators import login_required
+from epicevent.utils.decorators import login_required, roles_required
 
 @click.group()
 def collaborators():
@@ -24,6 +24,7 @@ def list():
 
 @collaborators.command()
 @login_required
+@roles_required("gestion")
 def add():
     employee_id = click.prompt("ID de l'employé")
     name = click.prompt("Nom du collaborateur")
@@ -42,6 +43,7 @@ def add():
 
 @collaborators.command()
 @login_required
+@roles_required("gestion")
 def update():
     click.echo("Laissez vide pour ne pas modifier")
     collab_id = click.prompt("N° du collaborateur", type=int)
@@ -68,6 +70,7 @@ def update():
 
 @collaborators.command()
 @login_required
+@roles_required("gestion")
 def delete():
     collab_id = click.prompt("N° du collaborateur", type=int)
     with Session() as session:

@@ -1,6 +1,6 @@
 import click
 from epicevent.models.base import Session
-from epicevent.utils.decorators import login_required
+from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.events_service import EventsService
 from epicevent.models import Contract
@@ -25,6 +25,7 @@ def list():
 
 @events.command()
 @login_required
+@roles_required("commercial")
 def add():
     contract_id = click.prompt("N° du contrat associé", type=int)
     
@@ -55,6 +56,7 @@ def add():
 
 @events.command()
 @login_required
+@roles_required("support")
 def update():
     event_id = click.prompt("N° de l'événement", type=int)
     
@@ -74,7 +76,9 @@ def update():
 
     with Session() as session:
         service = EventsService(session)
-        event = service.update_event(event_id, **kwargs)
+        payload = verify_token(get_token())
+        collaborator_id = payload["id"]
+        event = service.update_event(event_id, collaborator_id, **kwargs)
         if event:
             click.echo(click.style(f"Événement mis à jour : {event.id}", fg="green"))
         else:
@@ -82,6 +86,7 @@ def update():
 
 @events.command()
 @login_required
+@roles_required("gestion")
 def assign():
     event_id = click.prompt("N° de l'événement", type=int)
     collaborator_id = click.prompt("N° du collaborateur à assigner", type=int)

@@ -1,6 +1,6 @@
 import click
 from epicevent.models.base import Session
-from epicevent.utils.decorators import login_required
+from epicevent.utils.decorators import login_required, roles_required
 from epicevent.services.clients_service import ClientsService
 from epicevent.utils.token import get_token, verify_token
 
@@ -36,6 +36,7 @@ def delete():
 
 @clients.command()
 @login_required
+@roles_required("commercial")
 def update():
     click.echo("Laissez vide pour ne pas modifier")
     client_id = click.prompt("N° du client", type=int)
@@ -54,7 +55,9 @@ def update():
 
     with Session() as session:
         service = ClientsService(session)
-        client = service.update_client(client_id, **kwargs)
+        payload = verify_token(get_token())
+        collaborator_id = payload["id"]
+        client = service.update_client(client_id, collaborator_id, **kwargs)
         if not client:
             click.echo(click.style("Client non trouvé.", fg="red"))
             return
@@ -62,6 +65,7 @@ def update():
 
 @clients.command()
 @login_required
+@roles_required("commercial")
 def add():
     first_name = click.prompt("Prénom du client")
     last_name = click.prompt("Nom du client")

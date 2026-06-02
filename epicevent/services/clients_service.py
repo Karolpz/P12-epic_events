@@ -24,11 +24,13 @@ class ClientsService:
         self.session.commit()
         return new_client
     
-    def update_client(self, client_id, **kwargs):
+    def update_client(self, client_id, collaborator_id, **kwargs):
         client = self.session.query(Client).filter(Client.id == client_id).first()
         if not client:
             return None
-        
+        if client.collaborator_id != collaborator_id:
+            return None
+
         for key, value in kwargs.items():
             setattr(client, key, value)
         

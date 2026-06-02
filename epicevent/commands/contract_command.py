@@ -1,6 +1,6 @@
 import click
 from epicevent.models.base import Session
-from epicevent.utils.decorators import login_required
+from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.contracts_service import ContractsService
 
@@ -25,6 +25,7 @@ def list():
 
 @contracts.command()
 @login_required
+@roles_required("gestion")
 def add():
     client_mail = click.prompt("Email du client", type=str)
     valid_user = verify_token(get_token())
@@ -39,6 +40,7 @@ def add():
 
 @contracts.command()
 @login_required
+@roles_required("gestion", "commercial")
 def update():
     contract_id = click.prompt("N° du contrat", type=int)
     
@@ -52,7 +54,9 @@ def update():
 
     with Session() as session:
         service = ContractsService(session)
-        contract = service.update_contract(contract_id, **kwargs)
+        payload = verify_token(get_token())
+        collaborator_id = payload["id"]
+        contract = service.update_contract(contract_id, collaborator_id, **kwargs)
         if contract:
             click.echo(f"Contrat mis à jour : {contract.id}")
         else:
@@ -60,6 +64,7 @@ def update():
 
 @contracts.command()
 @login_required
+@roles_required("gestion")
 def sign():
     contract_id = click.prompt("N° du contrat", type=int)               
     with Session() as session:
