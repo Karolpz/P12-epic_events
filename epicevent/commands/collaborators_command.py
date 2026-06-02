@@ -41,10 +41,10 @@ def add():
         click.echo(click.style(f"Collaborateur {name} ajouté avec succès !", fg="green"))
 
 @collaborators.command()
-@click.argument("collab_id", type=int)
 @login_required
-def update(collab_id):
+def update():
     click.echo("Laissez vide pour ne pas modifier")
+    collab_id = click.prompt("N° du collaborateur", type=int)
     name = click.prompt("Nouveau nom", default="")
     email = click.prompt("Nouvel email", default="")
     password = click.prompt("Nouveau mot de passe", default="", hide_input=True)
@@ -67,9 +67,9 @@ def update(collab_id):
         click.echo(click.style(f"Collaborateur {collab.name} mis à jour avec succès !", fg="green"))
 
 @collaborators.command()
-@click.argument("collab_id", type=int)
 @login_required
-def delete(collab_id):
+def delete():
+    collab_id = click.prompt("N° du collaborateur", type=int)
     with Session() as session:
         service = CollaboratorsService(session)
         success = service.delete_collaborator(collab_id)

@@ -11,3 +11,15 @@ def login_required(f):
             return
         return f(*args, **kwargs)
     return decorated_function
+
+def roles_required(*roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            payload = verify_token(get_token())
+            if not payload or payload.get("role") not in roles:
+                click.echo(click.style("Accès refusé.", fg="red"))
+                return
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator

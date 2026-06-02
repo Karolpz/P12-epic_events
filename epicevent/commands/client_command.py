@@ -23,9 +23,9 @@ def list():
             click.echo(f"- {client.first_name} {client.last_name} ({client.email}) - Société: {client.company}")
 
 @clients.command()
-@click.argument("client_id", type=int)
 @login_required
-def delete(client_id):
+def delete():
+    client_id = click.prompt("N° du client", type=int)
     with Session() as session:
         service = ClientsService(session)
         success = service.delete_client(client_id)
@@ -35,10 +35,10 @@ def delete(client_id):
             click.echo(click.style("Client non trouvé.", fg="red"))
 
 @clients.command()
-@click.argument("client_id", type=int)
 @login_required
-def update(client_id):
+def update():
     click.echo("Laissez vide pour ne pas modifier")
+    client_id = click.prompt("N° du client", type=int)
     first_name = click.prompt("Nouveau prénom", default="")
     last_name = click.prompt("Nouveau nom", default="")
     email = click.prompt("Nouvel email", default="")
