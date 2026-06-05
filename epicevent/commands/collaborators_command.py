@@ -26,7 +26,6 @@ def list():
 @login_required
 @roles_required("gestion")
 def add():
-    employee_id = click.prompt("ID de l'employé")
     name = click.prompt("Nom du collaborateur")
     email = click.prompt("Email du collaborateur")
     password = click.prompt("Mot de passe", hide_input=True, confirmation_prompt=True)
@@ -34,7 +33,7 @@ def add():
 
     with Session() as session:
         service = CollaboratorsService(session)
-        new_collab = service.add_collaborator(employee_id, name, email, password, RoleEnum(role))
+        new_collab = service.add_collaborator(name, email, password, RoleEnum(role))
         if not new_collab:
             click.echo(click.style("Un collaborateur avec cet email existe déjà.", fg="red"))
             return
@@ -45,28 +44,24 @@ def add():
 @login_required
 @roles_required("gestion")
 def update():
+    email_search = click.prompt("Email du collaborateur à modifier")
     click.echo("Laissez vide pour ne pas modifier")
-    collab_id = click.prompt("N° du collaborateur", type=int)
     name = click.prompt("Nouveau nom", default="")
-    email = click.prompt("Nouvel email", default="")
+    new_email = click.prompt("Nouvel email", default="")
     password = click.prompt("Nouveau mot de passe", default="", hide_input=True)
     
     kwargs = {}
-    if name:
-        kwargs["name"] = name
-    if email:
-        kwargs["email"] = email
-    if password:
-        kwargs["password"] = password
+    if name: kwargs["name"] = name
+    if new_email: kwargs["email"] = new_email
+    if password: kwargs["password"] = password
     
     with Session() as session:
         service = CollaboratorsService(session)
-        collab = service.update_collaborator(collab_id, **kwargs)
+        collab = service.update_collaborator_by_email(email_search, **kwargs)
         if not collab:
             click.echo(click.style("Collaborateur non trouvé.", fg="red"))
             return
-        
-        click.echo(click.style(f"Collaborateur {collab.name} mis à jour avec succès !", fg="green"))
+        click.echo(click.style(f"Collaborateur {collab.name} mis à jour !", fg="green"))
 
 @collaborators.command()
 @login_required

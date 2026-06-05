@@ -1,11 +1,7 @@
 import click
 from epicevent.services.auth_service import AuthService
 from epicevent.models.base import Session
-from epicevent.utils.token import delete_token, get_token
-
-@click.group()
-def auth():
-    pass
+from epicevent.utils.token import delete_token
 
 @click.command()
 def login():

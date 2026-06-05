@@ -8,18 +8,18 @@ class CollaboratorsService:
     def list_collaborators(self):
         return self.session.query(Collaborator).all()
 
-    def add_collaborator(self, employee_id, name, email, password, role):
+    def add_collaborator(self, name, email, password, role):
         if self.session.query(Collaborator).filter(Collaborator.email == email).first():
             return None
         
-        new_collab = Collaborator(employee_id=employee_id, name=name, email=email, role=role)
+        new_collab = Collaborator(name=name, email=email, role=role)
         new_collab.set_password(password)
         self.session.add(new_collab)
         self.session.commit()
         return new_collab
     
-    def update_collaborator(self, collab_id, **kwargs):
-        collab = self.session.query(Collaborator).filter(Collaborator.id == collab_id).first()
+    def update_collaborator(self, email_id, **kwargs):
+        collab = self.session.query(Collaborator).filter(Collaborator.email == email_id).first()
         if not collab:
             return None
 
