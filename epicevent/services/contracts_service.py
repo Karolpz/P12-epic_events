@@ -1,6 +1,5 @@
-from epicevent.models import Contract
+from epicevent.models import Contract, Collaborator, Client
 from sqlalchemy.orm import Session
-from epicevent.models import Client
 
 class ContractsService:
     def __init__(self, session: Session):
@@ -31,10 +30,9 @@ class ContractsService:
         contract = self.session.query(Contract).filter_by(id=contract_id).first()
         if not contract:
             return None
-
-        if contract.collaborator_id != collaborator_id:
+        collaborator = self.session.get(Collaborator, collaborator_id)
+        if not contract.can_edit(collaborator):
             return None
-
         for key, value in kwargs.items():
             setattr(contract, key, value)
         self.session.commit()

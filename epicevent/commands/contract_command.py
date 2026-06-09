@@ -43,7 +43,6 @@ def add():
 @roles_required("gestion", "commercial")
 def update():
     contract_id = click.prompt("N° du contrat", type=int)
-    
     click.echo("Laissez vide pour ne pas modifier")
     amount = click.prompt("Nouveau montant", default="")
     amount_to_pay = click.prompt("Montant restant", default="")
@@ -52,15 +51,16 @@ def update():
     if amount: kwargs["amount"] = float(amount)
     if amount_to_pay: kwargs["amount_to_pay"] = float(amount_to_pay)
 
+    payload = verify_token(get_token())
+    collaborator_id = payload["id"]
+
     with Session() as session:
         service = ContractsService(session)
-        payload = verify_token(get_token())
-        collaborator_id = payload["id"]
         contract = service.update_contract(contract_id, collaborator_id, **kwargs)
-        if contract:
-            click.echo(f"Contrat mis à jour : {contract.id}")
-        else:
-            click.echo("Contrat non trouvé")
+        if not contract:
+            click.echo(click.style("Contrat non trouvé ou accès refusé.", fg="red"))
+            return
+        click.echo(click.style("Contrat mis à jour !", fg="green"))
 
 @contracts.command()
 @login_required
@@ -75,14 +75,14 @@ def sign():
         else:
             click.echo("Contrat non trouvé")
 
-@contracts.command()
-@login_required
-def delete():
-    contract_id = click.prompt("N° du contrat", type=int)
-    with Session() as session:
-        service = ContractsService(session)
-        if service.delete_contract(contract_id):
-            click.echo(f"Contrat supprimé : {contract_id}")
-        else:
-            click.echo("Contrat non trouvé")
+# @contracts.command()
+# @login_required
+# def delete():
+#     contract_id = click.prompt("N° du contrat", type=int)
+#     with Session() as session:
+#         service = ContractsService(session)
+#         if service.delete_contract(contract_id):
+#             click.echo(f"Contrat supprimé : {contract_id}")
+#         else:
+#             click.echo("Contrat non trouvé")
 

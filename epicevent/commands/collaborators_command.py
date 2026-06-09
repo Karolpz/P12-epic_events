@@ -57,7 +57,7 @@ def update():
     
     with Session() as session:
         service = CollaboratorsService(session)
-        collab = service.update_collaborator_by_email(email_search, **kwargs)
+        collab = service.update_collaborator(email_search, **kwargs)
         if not collab:
             click.echo(click.style("Collaborateur non trouvé.", fg="red"))
             return

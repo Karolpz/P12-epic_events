@@ -38,48 +38,43 @@ def delete():
 @login_required
 @roles_required("commercial")
 def update():
+    email_search = click.prompt("Email du client à modifier")
     click.echo("Laissez vide pour ne pas modifier")
-    client_id = click.prompt("N° du client", type=int)
     first_name = click.prompt("Nouveau prénom", default="")
     last_name = click.prompt("Nouveau nom", default="")
-    email = click.prompt("Nouvel email", default="")
+    new_email = click.prompt("Nouvel email", default="")
     phone_number = click.prompt("Nouveau téléphone", default="")
     company = click.prompt("Nouvelle société", default="")
 
     kwargs = {}
     if first_name: kwargs["first_name"] = first_name
     if last_name: kwargs["last_name"] = last_name
-    if email: kwargs["email"] = email
+    if new_email: kwargs["email"] = new_email
     if phone_number: kwargs["phone_number"] = phone_number
     if company: kwargs["company"] = company
 
+    payload = verify_token(get_token())
+    collaborator_id = payload["id"]
+
     with Session() as session:
         service = ClientsService(session)
-        payload = verify_token(get_token())
-        collaborator_id = payload["id"]
-        client = service.update_client(client_id, collaborator_id, **kwargs)
+        client = service.update_client(email_search, collaborator_id, **kwargs)
         if not client:
-            click.echo(click.style("Client non trouvé.", fg="red"))
+            click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))
             return
         click.echo(click.style("Client mis à jour !", fg="green"))
 
-@clients.command()
-@login_required
-@roles_required("commercial")
-def add():
-    first_name = click.prompt("Prénom du client")
-    last_name = click.prompt("Nom du client")
-    email = click.prompt("Email du client")
-    phone_number = click.prompt("Numéro de téléphone du client")
-    company = click.prompt("Société du client")
-    valid_user = verify_token(get_token())
-    collaborator_id = valid_user["id"]
-
-    with Session() as session:
-        service = ClientsService(session)
-        new_client = service.add_client(first_name, last_name, email, phone_number, company, collaborator_id)
-        if not new_client:
-            click.echo(click.style("Un client avec cet email existe déjà.", fg="red"))
-            return
-        
-        click.echo(click.style(f"Client {first_name} {last_name} ajouté avec succès !", fg="green"))
+# @clients.command()
+# @login_required
+# @roles_required("commercial")
+# def delete():
+#     email_search = click.prompt("Email du client à supprimer")
+#     payload = verify_token(get_token())
+#     collaborator_id = payload["id"]
+#     with Session() as session:
+#         service = ClientsService(session)
+#         success = service.delete_client(email_search, collaborator_id)
+#         if success:
+#             click.echo(click.style("Client supprimé !", fg="green"))
+#         else:
+#             click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))

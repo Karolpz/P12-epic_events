@@ -1,4 +1,4 @@
-from epicevent.models import Client
+from epicevent.models import Client, Collaborator
 from sqlalchemy.orm import Session
 
 class ClientsService:
@@ -24,24 +24,22 @@ class ClientsService:
         self.session.commit()
         return new_client
     
-    def update_client(self, client_id, collaborator_id, **kwargs):
-        client = self.session.query(Client).filter(Client.id == client_id).first()
+    def update_client(self, email, collaborator_id, **kwargs):
+        client = self.session.query(Client).filter_by(email=email).first()
         if not client:
             return None
-        if client.collaborator_id != collaborator_id:
+        collaborator = self.session.get(Collaborator, collaborator_id)
+        if not client.can_edit(collaborator):
             return None
-
         for key, value in kwargs.items():
             setattr(client, key, value)
-        
         self.session.commit()
         return client
 
-    def delete_client(self, client_id):
-        client = self.session.query(Client).filter(Client.id == client_id).first()
-        if not client:
+    def delete_client(self, email, collaborator_id):
+        client = self.session.query(Client).filter(Client.email == email).first()
+        if client.collaborator_id != collaborator_id:
             return False
-        
         self.session.delete(client)
         self.session.commit()
         return True

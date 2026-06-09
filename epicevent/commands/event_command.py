@@ -59,7 +59,6 @@ def add():
 @roles_required("support")
 def update():
     event_id = click.prompt("N° de l'événement", type=int)
-    
     click.echo("Laissez vide pour ne pas modifier")
     title = click.prompt("Nouveau titre", default="")
     location = click.prompt("Nouveau lieu", default="")
@@ -74,15 +73,16 @@ def update():
     if end_date: kwargs["end_date"] = end_date
     if notes: kwargs["notes"] = notes
 
+    payload = verify_token(get_token())
+    collaborator_id = payload["id"]
+
     with Session() as session:
         service = EventsService(session)
-        payload = verify_token(get_token())
-        collaborator_id = payload["id"]
         event = service.update_event(event_id, collaborator_id, **kwargs)
-        if event:
-            click.echo(click.style(f"Événement mis à jour : {event.id}", fg="green"))
-        else:
-            click.echo(click.style("Événement non trouvé.", fg="red"))
+        if not event:
+            click.echo(click.style("Événement non trouvé ou accès refusé.", fg="red"))
+            return
+        click.echo(click.style(f"Événement mis à jour !", fg="green"))
 
 @events.command()
 @login_required

@@ -2,6 +2,7 @@ from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from .base import Base
+from epicevent.models.collaborators import RoleEnum
 
 
 class Contract(Base):
@@ -25,9 +26,6 @@ class Contract(Base):
         return f"Contract(id={self.id}, amount={self.amount}, amount_to_pay={self.amount_to_pay}, is_signed={self.is_signed})"
 
     def sign(self):
-        self.is_signed = True
-
-    def sign(self):
         if self.is_signed:
             raise Exception("Contrat déjà signé")
         self.is_signed = True
@@ -38,3 +36,8 @@ class Contract(Base):
         if amount_to_pay > self.amount:
             raise Exception("Le montant restant ne peut pas dépasser le montant total")
         self.amount_to_pay = amount_to_pay
+
+    def can_edit(self, collaborator):
+        if collaborator.role == RoleEnum.gestion:
+            return True
+        return self.collaborator_id == collaborator.id

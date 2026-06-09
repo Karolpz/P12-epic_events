@@ -22,3 +22,6 @@ class Event(Base):
 
     def __repr__(self):
         return f"Event(id={self.id}, title={self.title}, location={self.location}, start_date={self.start_date}, end_date={self.end_date})"
+
+    def can_edit(self, collaborator):
+        return self.collaborator_id == collaborator.id

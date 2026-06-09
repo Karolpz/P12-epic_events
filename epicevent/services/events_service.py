@@ -34,7 +34,8 @@ class EventsService:
         event = self.session.query(Event).filter_by(id=event_id).first()
         if not event:
             return None
-        if event.collaborator_id != collaborator_id:
+        collaborator = self.session.get(Collaborator, collaborator_id)
+        if not event.can_edit(collaborator):
             return None
         for key, value in kwargs.items():
             setattr(event, key, value)

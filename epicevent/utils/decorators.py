@@ -17,7 +17,7 @@ def roles_required(*roles):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             payload = verify_token(get_token())
-            if payload.get("role") not in roles:
+            if not payload or payload.get("role") not in roles:
                 click.echo(click.style("Accès refusé.", fg="red"))
                 return
             return f(*args, **kwargs)
