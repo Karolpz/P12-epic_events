@@ -8,7 +8,19 @@ from epicevent.models.base import Base, engine
 from epicevent.models.collaborators import Collaborator, RoleEnum
 from epicevent.models.base import Session
 import click
+import os
+import sentry_sdk
+from dotenv import load_dotenv
 
+load_dotenv()
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    traces_sample_rate=1.0
+)
+
+# Test Sentry integration by triggering an error
+# division_by_zero = 1 / 0
 
 # Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)

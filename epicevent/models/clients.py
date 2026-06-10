@@ -25,5 +25,5 @@ class Client(Base):
     def __repr__(self):
         return f"Client(id={self.id}, first_name={self.first_name}, last_name={self.last_name}, email={self.email})"
     
-    def can_edit(self, collaborator_id):
-        return self.collaborator_id == collaborator_id
+    def can_edit(self, collaborator):
+        return self.collaborator_id == collaborator.id
