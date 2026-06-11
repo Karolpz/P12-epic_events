@@ -4,22 +4,24 @@ from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.contracts_service import ContractsService
 
+
 @click.group()
 def contracts():
     pass
+
 
 @contracts.command()
 @login_required
 def list():
     with Session() as session:
         service = ContractsService(session)
-        contracts = service.list_contracts()
-        if not contracts:
+        contract_list = service.list_contracts()
+        if not contract_list:
             click.echo(click.style("Aucun contrat trouvé.", fg="yellow"))
             return
-        
+
         click.echo(click.style("Liste des contrats :", fg="green"))
-        for contract in contracts:
+        for contract in contract_list:
             click.echo(f"- Contrat n° : {contract.id}, Mail du client: {contract.client.email}, Montant: {contract.amount}")
 
 
@@ -31,11 +33,14 @@ def add():
     valid_user = verify_token(get_token())
     collaborator_id = valid_user["id"]
     amount = click.prompt("Montant du contrat", type=float)
-    
+
     with Session() as session:
         service = ContractsService(session)
         contract = service.add_contract(client_mail, collaborator_id, amount)
-        click.echo(f"Contrat ajouté : {contract.id}")
+        if not contract:
+            click.echo(click.style("Client introuvable.", fg="red"))
+            return
+        click.echo(click.style(f"Contrat ajouté : {contract.id}", fg="green"))
 
 
 @contracts.command()
@@ -62,27 +67,20 @@ def update():
             return
         click.echo(click.style("Contrat mis à jour !", fg="green"))
 
+
 @contracts.command()
 @login_required
 @roles_required("gestion")
 def sign():
-    contract_id = click.prompt("N° du contrat", type=int)               
+    contract_id = click.prompt("N° du contrat", type=int)
     with Session() as session:
         service = ContractsService(session)
-        contract = service.sign_contract(contract_id)
+        try:
+            contract = service.sign_contract(contract_id)
+        except Exception as e:
+            click.echo(click.style(str(e), fg="red"))
+            return
         if contract:
-            click.echo(f"Contrat signé : {contract.id}")
+            click.echo(click.style(f"Contrat signé : {contract.id}", fg="green"))
         else:
-            click.echo("Contrat non trouvé")
-
-# @contracts.command()
-# @login_required
-# def delete():
-#     contract_id = click.prompt("N° du contrat", type=int)
-#     with Session() as session:
-#         service = ContractsService(session)
-#         if service.delete_contract(contract_id):
-#             click.echo(f"Contrat supprimé : {contract_id}")
-#         else:
-#             click.echo("Contrat non trouvé")
-
+            click.echo(click.style("Contrat non trouvé.", fg="red"))

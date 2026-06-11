@@ -1,0 +1,7 @@
+[run]
+omit = 
+    epicevent/__main__.py
+
+[report]
+omit =
+    epicevent/__main__.py

@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from .base import Base
@@ -25,3 +25,6 @@ class Event(Base):
 
     def can_edit(self, collaborator):
         return self.collaborator_id == collaborator.id
+
+    def assign_support(self, collaborator):
+        self.collaborator_id = collaborator.id

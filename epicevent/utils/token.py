@@ -34,8 +34,8 @@ def refresh_token():
         return None
     try:
         with open(".refresh_token", "r") as f:
-            refresh_token = f.read()
-            payload = jwt.decode(refresh_token, secret_key, algorithms=["HS256"])
+            token_string = f.read()
+            payload = jwt.decode(token_string, secret_key, algorithms=["HS256"])
         with Session() as session:
             collaborator = session.query(Collaborator).filter_by(id=payload["collaborator"]["id"]).first()
             if not collaborator:

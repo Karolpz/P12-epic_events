@@ -38,6 +38,8 @@ class ClientsService:
 
     def delete_client(self, email, collaborator_id):
         client = self.session.query(Client).filter(Client.email == email).first()
+        if not client:
+            return False
         if client.collaborator_id != collaborator_id:
             return False
         self.session.delete(client)

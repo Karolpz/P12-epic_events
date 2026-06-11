@@ -44,6 +44,8 @@ class EventsService:
     
     def assign_support(self, event_id, collaborator_id):
         collaborator = self.session.query(Collaborator).filter_by(id=collaborator_id).first()
+        if not collaborator:
+            return None
         event = self.session.query(Event).filter_by(id=event_id).first()
         if not event:
             return None

@@ -33,6 +33,10 @@ class ContractsService:
         collaborator = self.session.get(Collaborator, collaborator_id)
         if not contract.can_edit(collaborator):
             return None
+        if "amount" in kwargs:
+            contract.amount = kwargs.pop("amount")
+        if "amount_to_pay" in kwargs:
+            contract.update_amount(kwargs.pop("amount_to_pay"))
         for key, value in kwargs.items():
             setattr(contract, key, value)
         self.session.commit()

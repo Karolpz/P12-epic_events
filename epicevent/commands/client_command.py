@@ -4,35 +4,50 @@ from epicevent.utils.decorators import login_required, roles_required
 from epicevent.services.clients_service import ClientsService
 from epicevent.utils.token import get_token, verify_token
 
+
 @click.group()
 def clients():
     pass
+
 
 @clients.command()
 @login_required
 def list():
     with Session() as session:
         service = ClientsService(session)
-        clients = service.list_clients()
-        if not clients:
+        client_list = service.list_clients()
+        if not client_list:
             click.echo(click.style("Aucun client trouvé.", fg="yellow"))
             return
-        
+
         click.echo(click.style("Liste des clients :", fg="green"))
-        for client in clients:
+        for client in client_list:
             click.echo(f"- {client.first_name} {client.last_name} ({client.email}) - Société: {client.company}")
+
 
 @clients.command()
 @login_required
-def delete():
-    client_id = click.prompt("N° du client", type=int)
+@roles_required("commercial")
+def add():
+    first_name = click.prompt("Prénom du client")
+    last_name = click.prompt("Nom du client")
+    email = click.prompt("Email du client")
+    phone_number = click.prompt("Téléphone", default="")
+    company = click.prompt("Société")
+
+    payload = verify_token(get_token())
+    collaborator_id = payload["id"]
+
     with Session() as session:
         service = ClientsService(session)
-        success = service.delete_client(client_id)
-        if success:
-            click.echo(click.style("Client supprimé avec succès !", fg="green"))
-        else:
-            click.echo(click.style("Client non trouvé.", fg="red"))
+        client = service.add_client(
+            first_name, last_name, email, phone_number or None, company, collaborator_id
+        )
+        if not client:
+            click.echo(click.style("Un client avec cet email existe déjà.", fg="red"))
+            return
+        click.echo(click.style(f"Client {first_name} {last_name} ajouté avec succès !", fg="green"))
+
 
 @clients.command()
 @login_required
@@ -64,17 +79,19 @@ def update():
             return
         click.echo(click.style("Client mis à jour !", fg="green"))
 
-# @clients.command()
-# @login_required
-# @roles_required("commercial")
-# def delete():
-#     email_search = click.prompt("Email du client à supprimer")
-#     payload = verify_token(get_token())
-#     collaborator_id = payload["id"]
-#     with Session() as session:
-#         service = ClientsService(session)
-#         success = service.delete_client(email_search, collaborator_id)
-#         if success:
-#             click.echo(click.style("Client supprimé !", fg="green"))
-#         else:
-#             click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))
+
+@clients.command()
+@login_required
+@roles_required("commercial")
+def delete():
+    email_search = click.prompt("Email du client à supprimer")
+    payload = verify_token(get_token())
+    collaborator_id = payload["id"]
+
+    with Session() as session:
+        service = ClientsService(session)
+        success = service.delete_client(email_search, collaborator_id)
+        if success:
+            click.echo(click.style("Client supprimé avec succès !", fg="green"))
+        else:
+            click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))

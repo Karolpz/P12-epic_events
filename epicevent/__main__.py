@@ -4,9 +4,6 @@ from epicevent.commands.collaborators_command import collaborators
 from epicevent.commands.client_command import clients
 from epicevent.commands.contract_command import contracts
 from epicevent.commands.event_command import events
-from epicevent.models.base import Base, engine
-from epicevent.models.collaborators import Collaborator, RoleEnum
-from epicevent.models.base import Session
 import click
 import os
 import sentry_sdk
