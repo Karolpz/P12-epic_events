@@ -1,6 +1,6 @@
 import click
 from epicevent.models.base import Session
-from epicevent.models.collaborators import Collaborator, RoleEnum
+from epicevent.models.collaborators import RoleEnum
 from epicevent.services.collaborators_service import CollaboratorsService
 from epicevent.utils.decorators import login_required, roles_required
 

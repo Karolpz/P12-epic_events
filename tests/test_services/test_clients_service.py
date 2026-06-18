@@ -34,40 +34,23 @@ class TestAddClient:
 
 
 class TestUpdateClient:
-    def test_owner_can_update(self, service, sample_client, commercial_user):
-        result = service.update_client(
-            sample_client.email, commercial_user.id, company="New Corp"
-        )
+    def test_update_company(self, service, sample_client):
+        result = service.update_client(sample_client.email, company="New Corp")
         assert result is not None
         assert result.company == "New Corp"
 
-    def test_non_owner_cannot_update(self, service, sample_client, other_commercial):
-        result = service.update_client(
-            sample_client.email, other_commercial.id, company="Hacked Corp"
-        )
+    def test_update_unknown_email_returns_none(self, service):
+        result = service.update_client("ghost@corp.com", company="X")
         assert result is None
 
-    def test_update_unknown_email_returns_none(self, service, commercial_user):
-        result = service.update_client("ghost@corp.com", commercial_user.id, company="X")
-        assert result is None
-
-    def test_update_phone_number(self, service, sample_client, commercial_user):
-        result = service.update_client(
-            sample_client.email, commercial_user.id, phone_number="0699999999"
-        )
+    def test_update_phone_number(self, service, sample_client):
+        result = service.update_client(sample_client.email, phone_number="0699999999")
         assert result.phone_number == "0699999999"
 
+    def test_update_multiple_fields(self, service, sample_client):
+        result = service.update_client(
+            sample_client.email, first_name="Nouveau", last_name="Nom"
+        )
+        assert result.first_name == "Nouveau"
+        assert result.last_name == "Nom"
 
-class TestDeleteClient:
-    def test_owner_can_delete(self, service, sample_client, commercial_user):
-        result = service.delete_client(sample_client.email, commercial_user.id)
-        assert result is True
-
-    def test_delete_removes_from_db(self, service, session, sample_client, commercial_user):
-        email = sample_client.email
-        service.delete_client(email, commercial_user.id)
-        assert session.query(Client).filter_by(email=email).first() is None
-
-    def test_non_owner_cannot_delete(self, service, sample_client, other_commercial):
-        result = service.delete_client(sample_client.email, other_commercial.id)
-        assert result is False

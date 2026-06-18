@@ -9,7 +9,7 @@ os.environ.setdefault("DB_PASSWORD", "test")
 os.environ.setdefault("DB_HOST", "localhost")
 os.environ.setdefault("DB_PORT", "5432")
 os.environ.setdefault("DB_NAME", "test")
-os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-pytest-32chars!")
+os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-pytest-32chars!"
 
 from epicevent.models.base import Base
 from epicevent.models import Collaborator, Client, Contract, Event, RoleEnum

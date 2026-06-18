@@ -50,26 +50,38 @@ class TestSignContract:
 
 
 class TestUpdateContract:
-    def test_gestion_can_update_any_contract(self, service, unsigned_contract, gestion_user):
-        result = service.update_contract(
-            unsigned_contract.id, gestion_user.id, amount_to_pay=2000.0
-        )
+    def test_update_amount_to_pay(self, service, unsigned_contract):
+        result = service.update_contract(unsigned_contract.id, amount_to_pay=2000.0)
         assert result is not None
         assert result.amount_to_pay == 2000.0
 
-    def test_commercial_owner_can_update(self, service, unsigned_contract, commercial_user):
-        result = service.update_contract(
-            unsigned_contract.id, commercial_user.id, amount_to_pay=1500.0
-        )
+    def test_update_amount(self, service, unsigned_contract):
+        result = service.update_contract(unsigned_contract.id, amount=9000.0)
         assert result is not None
-        assert result.amount_to_pay == 1500.0
+        assert result.amount == 9000.0
 
-    def test_non_owner_cannot_update(self, service, unsigned_contract, other_commercial):
+    def test_update_unknown_contract_returns_none(self, service):
+        result = service.update_contract(99999, amount_to_pay=100.0)
+        assert result is None
+
+    def test_update_multiple_fields(self, service, unsigned_contract):
         result = service.update_contract(
-            unsigned_contract.id, other_commercial.id, amount_to_pay=0.0
+            unsigned_contract.id, amount=8000.0, amount_to_pay=4000.0
         )
-        assert result is None
+        assert result.amount == 8000.0
+        assert result.amount_to_pay == 4000.0
 
-    def test_update_unknown_contract_returns_none(self, service, gestion_user):
-        result = service.update_contract(99999, gestion_user.id, amount_to_pay=100.0)
-        assert result is None
+
+class TestDeleteContract:
+    def test_delete_existing_returns_true(self, service, unsigned_contract):
+        result = service.delete_contract(unsigned_contract.id)
+        assert result is True
+
+    def test_delete_removes_from_db(self, service, session, unsigned_contract):
+        contract_id = unsigned_contract.id
+        service.delete_contract(contract_id)
+        assert session.query(Contract).filter_by(id=contract_id).first() is None
+
+    def test_delete_unknown_returns_false(self, service):
+        result = service.delete_contract(99999)
+        assert result is False

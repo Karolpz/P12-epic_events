@@ -58,38 +58,36 @@ class TestAddEvent:
 
 
 class TestUpdateEvent:
-    def test_assigned_support_can_update(self, service, sample_event, support_user):
-        result = service.update_event(
-            sample_event.id, support_user.id, location="Marseille"
-        )
+    def test_update_location(self, service, sample_event):
+        result = service.update_event(sample_event.id, location="Marseille")
         assert result is not None
         assert result.location == "Marseille"
 
-    def test_non_assigned_cannot_update(self, service, sample_event, commercial_user):
-        result = service.update_event(
-            sample_event.id, commercial_user.id, location="Hacked"
-        )
-        assert result is None
-
-    def test_update_unknown_event_returns_none(self, service, support_user):
-        result = service.update_event(99999, support_user.id, location="Nowhere")
-        assert result is None
-
-    def test_update_participants_number(self, service, sample_event, support_user):
-        result = service.update_event(
-            sample_event.id, support_user.id, participants_number=200
-        )
+    def test_update_participants_number(self, service, sample_event):
+        result = service.update_event(sample_event.id, participants_number=200)
         assert result.participants_number == 200
+
+    def test_update_notes(self, service, sample_event):
+        result = service.update_event(sample_event.id, notes="Note mise à jour")
+        assert result.notes == "Note mise à jour"
+
+    def test_update_unknown_event_returns_none(self, service):
+        result = service.update_event(99999, location="Nowhere")
+        assert result is None
+
+    def test_update_multiple_fields(self, service, sample_event):
+        result = service.update_event(sample_event.id, location="Nice", participants_number=50)
+        assert result.location == "Nice"
+        assert result.participants_number == 50
 
 
 class TestAssignSupport:
     def test_assign_support_updates_collaborator(self, service, session, sample_event, other_commercial):
-        # other_commercial joue le rôle du support assigné (le service ne vérifie pas le rôle)
         result = service.assign_support(sample_event.id, other_commercial.id)
         assert result is not None
         assert result.collaborator_id == other_commercial.id
 
-    def test_assign_support_persists_to_db(self, service, session, sample_event, support_user, other_commercial):
+    def test_assign_support_persists_to_db(self, service, session, sample_event, other_commercial):
         service.assign_support(sample_event.id, other_commercial.id)
         session.expire(sample_event)
         refreshed = session.get(Event, sample_event.id)
@@ -97,4 +95,8 @@ class TestAssignSupport:
 
     def test_assign_support_unknown_event_returns_none(self, service, support_user):
         result = service.assign_support(99999, support_user.id)
+        assert result is None
+
+    def test_assign_support_unknown_collaborator_returns_none(self, service, sample_event):
+        result = service.assign_support(sample_event.id, 99999)
         assert result is None

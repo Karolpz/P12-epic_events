@@ -3,6 +3,7 @@ from epicevent.models.base import Session
 from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.contracts_service import ContractsService
+from epicevent.models.collaborators import Collaborator
 
 
 @click.group()
@@ -43,28 +44,34 @@ def add():
         click.echo(click.style(f"Contrat ajouté : {contract.id}", fg="green"))
 
 
+from epicevent.models.contracts import Contract
+
 @contracts.command()
 @login_required
 @roles_required("gestion", "commercial")
 def update():
     contract_id = click.prompt("N° du contrat", type=int)
-    click.echo("Laissez vide pour ne pas modifier")
-    amount = click.prompt("Nouveau montant", default="")
-    amount_to_pay = click.prompt("Montant restant", default="")
-
-    kwargs = {}
-    if amount: kwargs["amount"] = float(amount)
-    if amount_to_pay: kwargs["amount_to_pay"] = float(amount_to_pay)
 
     payload = verify_token(get_token())
     collaborator_id = payload["id"]
 
     with Session() as session:
-        service = ContractsService(session)
-        contract = service.update_contract(contract_id, collaborator_id, **kwargs)
-        if not contract:
+        collaborator = session.get(Collaborator, collaborator_id)
+        contract = session.get(Contract, contract_id)
+        if not contract or not contract.can_edit(collaborator):
             click.echo(click.style("Contrat non trouvé ou accès refusé.", fg="red"))
             return
+
+        click.echo("Laissez vide pour ne pas modifier")
+        amount = click.prompt("Nouveau montant", default="")
+        amount_to_pay = click.prompt("Montant restant", default="")
+
+        kwargs = {}
+        if amount: kwargs["amount"] = float(amount)
+        if amount_to_pay: kwargs["amount_to_pay"] = float(amount_to_pay)
+
+        service = ContractsService(session)
+        service.update_contract(contract_id, **kwargs)
         click.echo(click.style("Contrat mis à jour !", fg="green"))
 
 

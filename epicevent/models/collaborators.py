@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, ForeignKey, Enum
+from sqlalchemy import Integer, String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 from .base import Base
@@ -11,6 +11,8 @@ class RoleEnum(enum.Enum):
     support = "support"
 
 class Collaborator(Base):
+    """Modèle représentant un collaborateur de l'entreprise."""
+
     __tablename__ = 'collaborators'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -26,12 +28,14 @@ class Collaborator(Base):
 
     def __repr__(self):
         return f"Collaborator(id={self.id}, name={self.name}, email={self.email}, role={self.role.value})"
-    
+
     def set_password(self, password):
+        """Hache et enregistre le mot de passe avec Argon2."""
         ph = PasswordHasher()
         self.password = ph.hash(password)
 
     def verify_password(self, password):
+        """Vérifie le mot de passe fourni contre le hash stocké. Retourne False en cas d'échec."""
         ph = PasswordHasher()
         try:
             return ph.verify(self.password, password)

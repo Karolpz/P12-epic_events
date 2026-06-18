@@ -3,8 +3,8 @@ from epicevent.models.base import Session
 from epicevent.utils.decorators import login_required, roles_required
 from epicevent.services.clients_service import ClientsService
 from epicevent.utils.token import get_token, verify_token
-
-
+from epicevent.models.collaborators import Collaborator
+from epicevent.models.clients import Client
 @click.group()
 def clients():
     pass
@@ -54,44 +54,31 @@ def add():
 @roles_required("commercial")
 def update():
     email_search = click.prompt("Email du client à modifier")
-    click.echo("Laissez vide pour ne pas modifier")
-    first_name = click.prompt("Nouveau prénom", default="")
-    last_name = click.prompt("Nouveau nom", default="")
-    new_email = click.prompt("Nouvel email", default="")
-    phone_number = click.prompt("Nouveau téléphone", default="")
-    company = click.prompt("Nouvelle société", default="")
-
-    kwargs = {}
-    if first_name: kwargs["first_name"] = first_name
-    if last_name: kwargs["last_name"] = last_name
-    if new_email: kwargs["email"] = new_email
-    if phone_number: kwargs["phone_number"] = phone_number
-    if company: kwargs["company"] = company
 
     payload = verify_token(get_token())
     collaborator_id = payload["id"]
 
     with Session() as session:
-        service = ClientsService(session)
-        client = service.update_client(email_search, collaborator_id, **kwargs)
-        if not client:
+        collaborator = session.get(Collaborator, collaborator_id)
+        client = session.query(Client).filter_by(email=email_search).first()
+        if not client or not client.can_edit(collaborator):
             click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))
             return
-        click.echo(click.style("Client mis à jour !", fg="green"))
 
+        click.echo("Laissez vide pour ne pas modifier")
+        first_name = click.prompt("Nouveau prénom", default="")
+        last_name = click.prompt("Nouveau nom", default="")
+        new_email = click.prompt("Nouvel email", default="")
+        phone_number = click.prompt("Nouveau téléphone", default="")
+        company = click.prompt("Nouvelle société", default="")
 
-@clients.command()
-@login_required
-@roles_required("commercial")
-def delete():
-    email_search = click.prompt("Email du client à supprimer")
-    payload = verify_token(get_token())
-    collaborator_id = payload["id"]
+        kwargs = {}
+        if first_name: kwargs["first_name"] = first_name
+        if last_name: kwargs["last_name"] = last_name
+        if new_email: kwargs["email"] = new_email
+        if phone_number: kwargs["phone_number"] = phone_number
+        if company: kwargs["company"] = company
 
-    with Session() as session:
         service = ClientsService(session)
-        success = service.delete_client(email_search, collaborator_id)
-        if success:
-            click.echo(click.style("Client supprimé avec succès !", fg="green"))
-        else:
-            click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))
+        service.update_client(email_search, **kwargs)
+        click.echo(click.style("Client mis à jour !", fg="green"))

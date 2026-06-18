@@ -1,4 +1,5 @@
 [run]
+source = epicevent
 omit = 
     epicevent/__main__.py
 
