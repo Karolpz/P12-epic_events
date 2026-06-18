@@ -51,9 +51,12 @@ def update():
     password = click.prompt("Nouveau mot de passe", default="", hide_input=True)
     
     kwargs = {}
-    if name: kwargs["name"] = name
-    if new_email: kwargs["email"] = new_email
-    if password: kwargs["password"] = password
+    if name: 
+        kwargs["name"] = name
+    if new_email: 
+        kwargs["email"] = new_email
+    if password: 
+        kwargs["password"] = password
     
     with Session() as session:
         service = CollaboratorsService(session)

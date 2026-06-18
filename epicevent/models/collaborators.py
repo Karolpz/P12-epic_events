@@ -1,8 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from sqlalchemy import Integer, String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 from .base import Base
 from argon2 import PasswordHasher
+
+if TYPE_CHECKING:
+    from .clients import Client
+    from .contracts import Contract
+    from .events import Event
 
 
 class RoleEnum(enum.Enum):
@@ -39,5 +46,5 @@ class Collaborator(Base):
         ph = PasswordHasher()
         try:
             return ph.verify(self.password, password)
-        except:
+        except Exception:
             return False

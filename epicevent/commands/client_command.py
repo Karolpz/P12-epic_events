@@ -73,11 +73,16 @@ def update():
         company = click.prompt("Nouvelle société", default="")
 
         kwargs = {}
-        if first_name: kwargs["first_name"] = first_name
-        if last_name: kwargs["last_name"] = last_name
-        if new_email: kwargs["email"] = new_email
-        if phone_number: kwargs["phone_number"] = phone_number
-        if company: kwargs["company"] = company
+        if first_name: 
+            kwargs["first_name"] = first_name
+        if last_name: 
+            kwargs["last_name"] = last_name
+        if new_email: 
+            kwargs["email"] = new_email
+        if phone_number: 
+            kwargs["phone_number"] = phone_number
+        if company: 
+            kwargs["company"] = company
 
         service = ClientsService(session)
         service.update_client(email_search, **kwargs)

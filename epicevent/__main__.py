@@ -16,9 +16,6 @@ sentry_sdk.init(
     traces_sample_rate=1.0
 )
 
-# Test Sentry integration by triggering an error
-# division_by_zero = 1 / 0
-
 # Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 

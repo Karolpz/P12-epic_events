@@ -1,8 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from sqlalchemy import Integer, Float, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from .base import Base
 from epicevent.models.collaborators import RoleEnum
+
+if TYPE_CHECKING:
+    from .collaborators import Collaborator
+    from .clients import Client
+    from .events import Event
 
 
 class Contract(Base):

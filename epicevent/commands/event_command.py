@@ -4,6 +4,9 @@ from epicevent.models.base import Session
 from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.events_service import EventsService
+from epicevent.models.collaborators import Collaborator
+from epicevent.models.events import Event
+
 
 DATE_FORMAT = "%Y-%m-%d %H:%M"
 
@@ -56,10 +59,6 @@ def add():
         else:
             click.echo(click.style("Contrat introuvable ou non signé.", fg="red"))
 
-
-from epicevent.models.collaborators import Collaborator
-from epicevent.models.events import Event
-
 @events.command()
 @login_required
 @roles_required("support")
@@ -84,8 +83,10 @@ def update():
         notes = click.prompt("Notes", default="")
 
         kwargs = {}
-        if title: kwargs["title"] = title
-        if location: kwargs["location"] = location
+        if title: 
+            kwargs["title"] = title
+        if location: 
+            kwargs["location"] = location
         if start_date_str:
             try:
                 kwargs["start_date"] = datetime.strptime(start_date_str, DATE_FORMAT)
@@ -98,7 +99,8 @@ def update():
             except ValueError:
                 click.echo(click.style("Format de date de fin invalide.", fg="red"))
                 return
-        if notes: kwargs["notes"] = notes
+        if notes: 
+            kwargs["notes"] = notes
 
         service = EventsService(session)
         service.update_event(event_id, **kwargs)

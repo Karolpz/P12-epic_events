@@ -4,6 +4,7 @@ from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.contracts_service import ContractsService
 from epicevent.models.collaborators import Collaborator
+from epicevent.models.contracts import Contract
 
 
 @click.group()
@@ -44,8 +45,6 @@ def add():
         click.echo(click.style(f"Contrat ajouté : {contract.id}", fg="green"))
 
 
-from epicevent.models.contracts import Contract
-
 @contracts.command()
 @login_required
 @roles_required("gestion", "commercial")
@@ -67,8 +66,10 @@ def update():
         amount_to_pay = click.prompt("Montant restant", default="")
 
         kwargs = {}
-        if amount: kwargs["amount"] = float(amount)
-        if amount_to_pay: kwargs["amount_to_pay"] = float(amount_to_pay)
+        if amount: 
+            kwargs["amount"] = float(amount)
+        if amount_to_pay: 
+            kwargs["amount_to_pay"] = float(amount_to_pay)
 
         service = ContractsService(session)
         service.update_contract(contract_id, **kwargs)
