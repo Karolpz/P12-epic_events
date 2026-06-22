@@ -174,7 +174,6 @@ class TestRefreshToken:
 
     def test_regenerates_access_token_on_refresh(self, commercial_user):
         generate_token(commercial_user)
-        # Supprime uniquement le token d'accès, le refresh token doit rester
         if os.path.exists(".token"):
             os.remove(".token")
         assert not os.path.exists(".token")

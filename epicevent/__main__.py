@@ -1,15 +1,8 @@
-from epicevent.models.base import Base, engine
 from epicevent.commands.auth_command import login, logout
 from epicevent.commands.collaborators_command import collaborators
 from epicevent.commands.client_command import clients
 from epicevent.commands.contract_command import contracts
 from epicevent.commands.event_command import events
-from epicevent.models.collaborators import Collaborator, RoleEnum
-from epicevent.models.clients import Client
-from epicevent.models.contracts import Contract
-from epicevent.models.events import Event
-from epicevent.models.base import Session
-from datetime import datetime
 import click
 import os
 import sentry_sdk
@@ -22,8 +15,14 @@ sentry_sdk.init(
     traces_sample_rate=1.0
 )
 
+# Décommentez ce bloc pour initialiser la base de données
 # Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
+# with Session() as session:
+#     alice = Collaborator(name="Alice", email="alice@epic.io", role=RoleEnum.gestion)
+#     alice.set_password("user123")
+#     session.add(alice)
+#     session.commit()
 
 @click.group()
 def cli():
