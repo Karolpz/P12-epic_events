@@ -4,6 +4,12 @@ from epicevent.commands.collaborators_command import collaborators
 from epicevent.commands.client_command import clients
 from epicevent.commands.contract_command import contracts
 from epicevent.commands.event_command import events
+from epicevent.models.collaborators import Collaborator, RoleEnum
+from epicevent.models.clients import Client
+from epicevent.models.contracts import Contract
+from epicevent.models.events import Event
+from epicevent.models.base import Session
+from datetime import datetime
 import click
 import os
 import sentry_sdk
@@ -18,16 +24,6 @@ sentry_sdk.init(
 
 # Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
-
-# with Session() as session:
-#     test_collab = Collaborator(
-#         name="Alice",
-#         email="alice@epic.io",
-#         role=RoleEnum.gestion
-#     )
-#     test_collab.set_password("password123")
-#     session.add(test_collab)
-#     session.commit()
 
 @click.group()
 def cli():

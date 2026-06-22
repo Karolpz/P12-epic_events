@@ -26,8 +26,8 @@ class Event(Base):
     support_id: Mapped[int] = mapped_column(Integer, ForeignKey("collaborators.id"), nullable=True)
     contract_id: Mapped[int] = mapped_column(Integer, ForeignKey("contracts.id"), nullable=True)
 
-    commercial: Mapped["Collaborator"] = relationship("Collaborator", foreign_keys=[commercial_id])
-    support: Mapped["Collaborator"] = relationship("Collaborator", foreign_keys=[support_id])
+    commercial: Mapped["Collaborator"] = relationship("Collaborator", foreign_keys=[commercial_id], overlaps="commercial_events")
+    support: Mapped["Collaborator"] = relationship("Collaborator", foreign_keys=[support_id], overlaps="support_events")
     contract: Mapped["Contract"] = relationship("Contract", back_populates="event")
 
     def __repr__(self):

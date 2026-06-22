@@ -119,11 +119,11 @@ def update():
 @roles_required("gestion")
 def assign():
     event_id = click.prompt("N° de l'événement", type=int)
-    collaborator_id = click.prompt("N° du collaborateur à assigner", type=int)
+    collaborator_email = click.prompt("Email du collaborateur à assigner", type=str)
 
     with Session() as session:
         service = EventsService(session)
-        event = service.assign_support(event_id, collaborator_id)
+        event = service.assign_support(event_id, collaborator_email)
         if event:
             click.echo(click.style(f"Support assigné à l'événement n° : {event.id}", fg="green"))
         else:

@@ -121,7 +121,8 @@ def sample_event(session, signed_contract, support_user):
         end_date=datetime(2025, 9, 1, 23, 0),
         participants_number=100,
         notes="Note de test",
-        collaborator_id=support_user.id,
+        commercial_id=signed_contract.collaborator_id,
+        support_id=support_user.id,
         contract_id=signed_contract.id,
     )
     session.add(event)

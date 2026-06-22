@@ -1,4 +1,4 @@
-from epicevent.models import Event, Contract, Collaborator
+from epicevent.models import Event, Contract, Collaborator, RoleEnum
 from sqlalchemy.orm import Session
 
 class EventsService:
@@ -48,10 +48,12 @@ class EventsService:
         self.session.commit()
         return event
 
-    def assign_support(self, event_id, collaborator_id):
+    def assign_support(self, event_id, collaborator_email):
         """Assigne un collaborateur support à un événement. Retourne None si l'événement ou le collaborateur est introuvable."""
-        collaborator = self.session.query(Collaborator).filter_by(id=collaborator_id).first()
+        collaborator = self.session.query(Collaborator).filter_by(email=collaborator_email).first()
         if not collaborator:
+            return None
+        if collaborator.role != RoleEnum.support:
             return None
         event = self.session.query(Event).filter_by(id=event_id).first()
         if not event:

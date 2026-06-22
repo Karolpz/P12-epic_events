@@ -29,8 +29,8 @@ class Collaborator(Base):
 
     role: Mapped[RoleEnum] = mapped_column(Enum(RoleEnum), nullable=False)
 
-    events_commercial: Mapped[list["Event"]] = relationship("Event", foreign_keys="[Event.commercial_id]")
-    events_support: Mapped[list["Event"]] = relationship("Event", foreign_keys="[Event.support_id]")
+    events_commercial: Mapped[list["Event"]] = relationship("Event", foreign_keys="[Event.commercial_id]", overlaps="commercial")
+    events_support: Mapped[list["Event"]] = relationship("Event", foreign_keys="[Event.support_id]", overlaps="support")
 
     clients: Mapped[list["Client"]] = relationship("Client", back_populates="collaborator")
     contracts: Mapped[list["Contract"]] = relationship("Contract", back_populates="collaborator")
