@@ -70,18 +70,3 @@ class TestUpdateContract:
         )
         assert result.amount == 8000.0
         assert result.amount_to_pay == 4000.0
-
-
-class TestDeleteContract:
-    def test_delete_existing_returns_true(self, service, unsigned_contract):
-        result = service.delete_contract(unsigned_contract.id)
-        assert result is True
-
-    def test_delete_removes_from_db(self, service, session, unsigned_contract):
-        contract_id = unsigned_contract.id
-        service.delete_contract(contract_id)
-        assert session.query(Contract).filter_by(id=contract_id).first() is None
-
-    def test_delete_unknown_returns_false(self, service):
-        result = service.delete_contract(99999)
-        assert result is False

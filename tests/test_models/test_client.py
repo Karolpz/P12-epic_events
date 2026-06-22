@@ -30,7 +30,6 @@ class TestCanEdit:
         assert client.can_edit(other) is False
 
     def test_gestion_without_ownership_cannot_edit(self):
-        # can_edit checks only collaborator_id equality, gestion has no special privilege here
         client = _make_client(collaborator_id=3)
         gestion = _make_collab(RoleEnum.gestion, collab_id=99)
         assert client.can_edit(gestion) is False

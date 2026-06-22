@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class Client(Base):
+    """Modèle représentant un client de l'entreprise."""
+
     __tablename__ = 'clients'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -29,7 +31,9 @@ class Client(Base):
     contracts: Mapped[list["Contract"]] = relationship("Contract", back_populates="client")
 
     def __repr__(self):
+        """Retourne une représentation lisible du client."""
         return f"Client(id={self.id}, first_name={self.first_name}, last_name={self.last_name}, email={self.email})"
-    
+
     def can_edit(self, collaborator):
+        """Retourne True si le collaborateur est le commercial responsable de ce client."""
         return self.collaborator_id == collaborator.id

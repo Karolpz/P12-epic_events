@@ -7,8 +7,8 @@ def _make_event(collaborator_id):
     return Event(
         title="Gala",
         location="Paris",
-        start_date=datetime(2025, 6, 1),
-        end_date=datetime(2025, 6, 2),
+        start_date=datetime(2025, 8, 1),
+        end_date=datetime(2025, 8, 2),
         participants_number=50,
         collaborator_id=collaborator_id,
     )
@@ -32,7 +32,6 @@ class TestCanEdit:
         assert event.can_edit(other_support) is False
 
     def test_gestion_without_assignment_cannot_edit(self):
-        # can_edit checks only collaborator_id equality, no role privilege
         event = _make_event(collaborator_id=4)
         gestion = _make_collab(RoleEnum.gestion, collab_id=99)
         assert event.can_edit(gestion) is False

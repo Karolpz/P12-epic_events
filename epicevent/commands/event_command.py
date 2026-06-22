@@ -6,6 +6,7 @@ from epicevent.utils.token import get_token, verify_token
 from epicevent.services.events_service import EventsService
 from epicevent.models.collaborators import Collaborator
 from epicevent.models.events import Event
+from epicevent.models.contracts import Contract
 
 
 DATE_FORMAT = "%Y-%m-%d %H:%M"
@@ -28,7 +29,7 @@ def list():
 
         click.echo(click.style("Liste des événements :", fg="green"))
         for event in event_list:
-            click.echo(f"- Événement n° : {event.id}, Titre: {event.title}, Lieu: {event.location}")
+            click.echo(f"- Événement n° : {event.id}, Titre: {event.title}, Lieu: {event.location}, Support: {event.support.name if event.support else 'Non assigné'}")
 
 
 @events.command()
@@ -36,24 +37,30 @@ def list():
 @roles_required("commercial")
 def add():
     contract_id = click.prompt("N° du contrat associé", type=int)
-    title = click.prompt("Titre de l'événement")
-    location = click.prompt("Lieu de l'événement")
-    start_date_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)")
-    end_date_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)")
-
-    try:
-        start_date = datetime.strptime(start_date_str, DATE_FORMAT)
-        end_date = datetime.strptime(end_date_str, DATE_FORMAT)
-    except ValueError:
-        click.echo(click.style("Format de date invalide. Utilisez YYYY-MM-DD HH:MM", fg="red"))
-        return
 
     valid_user = verify_token(get_token())
-    collaborator_id = valid_user["id"]
+    commercial_id = valid_user["id"]
 
     with Session() as session:
+        contract = session.get(Contract, contract_id)
+        if not contract or not contract.is_signed:
+            click.echo(click.style("Contrat introuvable ou non signé.", fg="red"))
+            return
+
+        title = click.prompt("Titre de l'événement")
+        location = click.prompt("Lieu de l'événement")
+        start_date_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)")
+        end_date_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)")
+
+        try:
+            start_date = datetime.strptime(start_date_str, DATE_FORMAT)
+            end_date = datetime.strptime(end_date_str, DATE_FORMAT)
+        except ValueError:
+            click.echo(click.style("Format de date invalide. Utilisez YYYY-MM-DD HH:MM", fg="red"))
+            return
+
         service = EventsService(session)
-        event = service.add_event(collaborator_id, title, start_date, end_date, location, contract_id)
+        event = service.add_event(commercial_id, title, start_date, end_date, location, contract_id)
         if event:
             click.echo(click.style(f"Événement ajouté n° : {event.id}", fg="green"))
         else:
@@ -66,12 +73,12 @@ def update():
     event_id = click.prompt("N° de l'événement", type=int)
 
     payload = verify_token(get_token())
-    collaborator_id = payload["id"]
+    support_id = payload["id"]
 
     with Session() as session:
-        collaborator = session.get(Collaborator, collaborator_id)
+        support = session.get(Collaborator, support_id)
         event = session.get(Event, event_id)
-        if not event or not event.can_edit(collaborator):
+        if not event or not event.can_edit(support):
             click.echo(click.style("Événement non trouvé ou accès refusé.", fg="red"))
             return
 

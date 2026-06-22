@@ -22,7 +22,7 @@ def list():
 
         click.echo(click.style("Liste des clients :", fg="green"))
         for client in client_list:
-            click.echo(f"- {client.first_name} {client.last_name} ({client.email}) - Société: {client.company}")
+            click.echo(f"- {client.first_name} {client.last_name} ({client.email}) - Société: {client.company} - Commercial: {client.collaborator.name}")
 
 
 @clients.command()

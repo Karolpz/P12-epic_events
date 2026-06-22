@@ -23,7 +23,6 @@ class TestSetPassword:
         hash1 = collab.password
         collab.set_password("same_password")
         hash2 = collab.password
-        # Argon2 uses random salt so hashes differ even for same input
         assert hash1 != hash2
 
 

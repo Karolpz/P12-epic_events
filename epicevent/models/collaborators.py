@@ -29,11 +29,14 @@ class Collaborator(Base):
 
     role: Mapped[RoleEnum] = mapped_column(Enum(RoleEnum), nullable=False)
 
+    events_commercial: Mapped[list["Event"]] = relationship("Event", foreign_keys="[Event.commercial_id]")
+    events_support: Mapped[list["Event"]] = relationship("Event", foreign_keys="[Event.support_id]")
+
     clients: Mapped[list["Client"]] = relationship("Client", back_populates="collaborator")
-    events: Mapped[list["Event"]] = relationship("Event", back_populates="collaborator")
     contracts: Mapped[list["Contract"]] = relationship("Contract", back_populates="collaborator")
 
     def __repr__(self):
+        """Retourne une représentation lisible du collaborateur."""
         return f"Collaborator(id={self.id}, name={self.name}, email={self.email}, role={self.role.value})"
 
     def set_password(self, password):

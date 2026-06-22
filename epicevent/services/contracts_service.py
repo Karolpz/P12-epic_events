@@ -26,6 +26,7 @@ class ContractsService:
             amount_to_pay=amount,
             is_signed=False
         )
+        new_contract.set_amount(amount)
         self.session.add(new_contract)
         self.session.commit()
         return new_contract
@@ -39,7 +40,7 @@ class ContractsService:
         if not contract:
             return None
         if "amount" in kwargs:
-            contract.amount = kwargs.pop("amount")
+            contract.total_amount(kwargs.pop("amount"))
         if "amount_to_pay" in kwargs:
             contract.update_amount(kwargs.pop("amount_to_pay"))
         for key, value in kwargs.items():
@@ -55,12 +56,3 @@ class ContractsService:
         contract.sign()
         self.session.commit()
         return contract
-
-    def delete_contract(self, contract_id):
-        """Supprime un contrat par son identifiant. Retourne False si introuvable."""
-        contract = self.session.query(Contract).filter_by(id=contract_id).first()
-        if not contract:
-            return False
-        self.session.delete(contract)
-        self.session.commit()
-        return True

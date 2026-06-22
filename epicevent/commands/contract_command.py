@@ -24,7 +24,7 @@ def list():
 
         click.echo(click.style("Liste des contrats :", fg="green"))
         for contract in contract_list:
-            click.echo(f"- Contrat n° : {contract.id}, Mail du client: {contract.client.email}, Montant: {contract.amount}")
+            click.echo(f"- Contrat n° : {contract.id}, Mail du client: {contract.client.email}, Montant: {contract.amount}, Commercial: {contract.client.collaborator.name} - Signé: {'Oui' if contract.is_signed else 'Non'}")
 
 
 @contracts.command()
@@ -38,7 +38,11 @@ def add():
 
     with Session() as session:
         service = ContractsService(session)
-        contract = service.add_contract(client_mail, collaborator_id, amount)
+        try:
+            contract = service.add_contract(client_mail, collaborator_id, amount)
+        except Exception as e:
+            click.echo(click.style(str(e), fg="red"))
+            return
         if not contract:
             click.echo(click.style("Client introuvable.", fg="red"))
             return
