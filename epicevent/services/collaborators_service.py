@@ -50,9 +50,9 @@ class CollaboratorsService:
         self.session.commit()
         return collab
 
-    def delete_collaborator(self, collab_id):
-        """Supprime un collaborateur par son identifiant. Retourne False si introuvable."""
-        collab = self.get_collaborator_by_id(collab_id)
+    def delete_collaborator(self, collab_email):
+        """Supprime un collaborateur par son email. Retourne False si introuvable."""
+        collab = self.get_collaborator_by_email(collab_email)
         if not collab:
             return False
 

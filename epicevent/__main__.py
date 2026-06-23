@@ -3,6 +3,12 @@ from epicevent.commands.collaborators_command import collaborators
 from epicevent.commands.client_command import clients
 from epicevent.commands.contract_command import contracts
 from epicevent.commands.event_command import events
+from epicevent.models.base import Base, Session, engine
+from epicevent.models.collaborators import Collaborator, RoleEnum
+from epicevent.models.clients import Client
+from epicevent.models.contracts import Contract
+from epicevent.models.events import Event
+from datetime import datetime
 import click
 import os
 import sentry_sdk
@@ -23,6 +29,7 @@ sentry_sdk.init(
 #     alice.set_password("user123")
 #     session.add(alice)
 #     session.commit()
+
 
 @click.group()
 def cli():

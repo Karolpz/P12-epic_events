@@ -73,10 +73,10 @@ def update():
 @login_required
 @roles_required("gestion")
 def delete():
-    collab_id = click.prompt("N° du collaborateur", type=int)
+    collab_email = click.prompt("Email du collaborateur", type=str)
     with Session() as session:
         service = CollaboratorsService(session)
-        success = service.delete_collaborator(collab_id)
+        success = service.delete_collaborator(collab_email)
         if not success:
             click.echo(click.style("Collaborateur non trouvé.", fg="red"))
             return
