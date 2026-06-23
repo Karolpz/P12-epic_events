@@ -45,25 +45,28 @@ def add():
 @roles_required("gestion")
 def update():
     email_search = click.prompt("Email du collaborateur à modifier")
-    click.echo("Laissez vide pour ne pas modifier")
-    name = click.prompt("Nouveau nom", default="")
-    new_email = click.prompt("Nouvel email", default="")
-    password = click.prompt("Nouveau mot de passe", default="", hide_input=True)
-    
-    kwargs = {}
-    if name: 
-        kwargs["name"] = name
-    if new_email: 
-        kwargs["email"] = new_email
-    if password: 
-        kwargs["password"] = password
-    
+
     with Session() as session:
         service = CollaboratorsService(session)
-        collab = service.update_collaborator(email_search, **kwargs)
+        collab = service.get_collaborator_by_email(email_search)
         if not collab:
             click.echo(click.style("Collaborateur non trouvé.", fg="red"))
             return
+
+        click.echo("Laissez vide pour ne pas modifier")
+        name = click.prompt("Nouveau nom", default="")
+        new_email = click.prompt("Nouvel email", default="")
+        password = click.prompt("Nouveau mot de passe", default="", hide_input=True)
+
+        kwargs = {}
+        if name:
+            kwargs["name"] = name
+        if new_email:
+            kwargs["email"] = new_email
+        if password:
+            kwargs["password"] = password
+
+        collab = service.update_collaborator(email_search, **kwargs)
         click.echo(click.style(f"Collaborateur {collab.name} mis à jour !", fg="green"))
 
 @collaborators.command()

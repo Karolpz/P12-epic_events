@@ -2,9 +2,9 @@ import click
 from epicevent.models.base import Session
 from epicevent.utils.decorators import login_required, roles_required
 from epicevent.services.clients_service import ClientsService
+from epicevent.services.collaborators_service import CollaboratorsService
 from epicevent.utils.token import get_token, verify_token
-from epicevent.models.collaborators import Collaborator
-from epicevent.models.clients import Client
+
 @click.group()
 def clients():
     pass
@@ -59,8 +59,10 @@ def update():
     collaborator_id = payload["id"]
 
     with Session() as session:
-        collaborator = session.get(Collaborator, collaborator_id)
-        client = session.query(Client).filter_by(email=email_search).first()
+        collaborator_service = CollaboratorsService(session)
+        collaborator = collaborator_service.get_collaborator_by_id(collaborator_id)
+        client_service = ClientsService(session)
+        client = client_service.get_client_by_email(email_search)
         if not client or not client.can_edit(collaborator):
             click.echo(click.style("Client non trouvé ou accès refusé.", fg="red"))
             return
@@ -84,6 +86,6 @@ def update():
         if company: 
             kwargs["company"] = company
 
-        service = ClientsService(session)
-        service.update_client(email_search, **kwargs)
+       
+        client_service.update_client(email_search, **kwargs)
         click.echo(click.style("Client mis à jour !", fg="green"))

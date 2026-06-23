@@ -67,6 +67,16 @@ def support_user(session):
 
 
 @pytest.fixture
+def other_support(session):
+    user = Collaborator(name="Autre Support", email="autre_support@epic.io", role=RoleEnum.support)
+    user.set_password("Password123!")
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@pytest.fixture
 def sample_client(session, commercial_user):
     client = Client(
         first_name="Jean",

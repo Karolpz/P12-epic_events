@@ -11,10 +11,18 @@ class CollaboratorsService:
     def list_collaborators(self):
         """Retourne la liste de tous les collaborateurs."""
         return self.session.query(Collaborator).all()
+    
+    def get_collaborator_by_email(self, email):
+        """Retourne un collaborateur par son email. Retourne None si le collaborateur n'existe pas."""
+        return self.session.query(Collaborator).filter_by(email=email).first()
+    
+    def get_collaborator_by_id(self, collaborator_id):
+        """Retourne un collaborateur par son ID. Retourne None si le collaborateur n'existe pas."""
+        return self.session.query(Collaborator).filter_by(id=collaborator_id).first()
 
     def add_collaborator(self, name, email, password, role):
         """Crée un nouveau collaborateur. Retourne None si l'email est déjà utilisé."""
-        if self.session.query(Collaborator).filter(Collaborator.email == email).first():
+        if self.get_collaborator_by_email(email):
             return None
 
         new_collab = Collaborator(name=name, email=email, role=role)
@@ -29,7 +37,7 @@ class CollaboratorsService:
         Le mot de passe, s'il est fourni, est haché avant d'être enregistré.
         Retourne None si le collaborateur est introuvable.
         """
-        collab = self.session.query(Collaborator).filter(Collaborator.email == email_id).first()
+        collab = self.get_collaborator_by_email(email_id)
         if not collab:
             return None
 
@@ -44,7 +52,7 @@ class CollaboratorsService:
 
     def delete_collaborator(self, collab_id):
         """Supprime un collaborateur par son identifiant. Retourne False si introuvable."""
-        collab = self.session.query(Collaborator).filter(Collaborator.id == collab_id).first()
+        collab = self.get_collaborator_by_id(collab_id)
         if not collab:
             return False
 

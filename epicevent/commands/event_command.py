@@ -4,9 +4,8 @@ from epicevent.models.base import Session
 from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.events_service import EventsService
-from epicevent.models.collaborators import Collaborator
-from epicevent.models.events import Event
-from epicevent.models.contracts import Contract
+from epicevent.services.contracts_service import ContractsService
+from epicevent.services.collaborators_service import CollaboratorsService
 
 
 DATE_FORMAT = "%Y-%m-%d %H:%M"
@@ -42,7 +41,8 @@ def add():
     commercial_id = valid_user["id"]
 
     with Session() as session:
-        contract = session.get(Contract, contract_id)
+        service = ContractsService(session)
+        contract = service.get_contract_by_id(contract_id)
         if not contract or not contract.is_signed:
             click.echo(click.style("Contrat introuvable ou non signé.", fg="red"))
             return
@@ -76,8 +76,10 @@ def update():
     support_id = payload["id"]
 
     with Session() as session:
-        support = session.get(Collaborator, support_id)
-        event = session.get(Event, event_id)
+        collaborator_service = CollaboratorsService(session)
+        support = collaborator_service.get_collaborator_by_id(support_id)
+        event_service = EventsService(session)
+        event = event_service.get_event_by_id(event_id)
         if not event or not event.can_edit(support):
             click.echo(click.style("Événement non trouvé ou accès refusé.", fg="red"))
             return
@@ -109,8 +111,7 @@ def update():
         if notes: 
             kwargs["notes"] = notes
 
-        service = EventsService(session)
-        service.update_event(event_id, **kwargs)
+        event_service.update_event(event_id, **kwargs)
         click.echo(click.style("Événement mis à jour !", fg="green"))
 
 

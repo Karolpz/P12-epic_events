@@ -3,8 +3,7 @@ from epicevent.models.base import Session
 from epicevent.utils.decorators import login_required, roles_required
 from epicevent.utils.token import get_token, verify_token
 from epicevent.services.contracts_service import ContractsService
-from epicevent.models.collaborators import Collaborator
-from epicevent.models.contracts import Contract
+from epicevent.services.collaborators_service import CollaboratorsService
 
 
 @click.group()
@@ -59,8 +58,10 @@ def update():
     collaborator_id = payload["id"]
 
     with Session() as session:
-        collaborator = session.get(Collaborator, collaborator_id)
-        contract = session.get(Contract, contract_id)
+        collaborator_service = CollaboratorsService(session)
+        collaborator = collaborator_service.get_collaborator_by_id(collaborator_id)
+        contract_service = ContractsService(session)
+        contract = contract_service.get_contract_by_id(contract_id)
         if not contract or not contract.can_edit(collaborator):
             click.echo(click.style("Contrat non trouvé ou accès refusé.", fg="red"))
             return
@@ -75,8 +76,7 @@ def update():
         if amount_to_pay: 
             kwargs["amount_to_pay"] = float(amount_to_pay)
 
-        service = ContractsService(session)
-        service.update_contract(contract_id, **kwargs)
+        contract_service.update_contract(contract_id, **kwargs)
         click.echo(click.style("Contrat mis à jour !", fg="green"))
 
 
@@ -84,11 +84,12 @@ def update():
 @login_required
 @roles_required("gestion")
 def sign():
+    
     contract_id = click.prompt("N° du contrat", type=int)
     with Session() as session:
-        service = ContractsService(session)
+        contract_service = ContractsService(session)
         try:
-            contract = service.sign_contract(contract_id)
+            contract = contract_service.sign_contract(contract_id)
         except Exception as e:
             click.echo(click.style(str(e), fg="red"))
             return

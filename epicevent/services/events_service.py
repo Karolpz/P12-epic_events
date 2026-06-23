@@ -1,24 +1,33 @@
-from epicevent.models import Event, Contract, Collaborator, RoleEnum
+from epicevent.models import Event, RoleEnum
 from sqlalchemy.orm import Session
+from epicevent.services.collaborators_service import CollaboratorsService
+from epicevent.services.contracts_service import ContractsService
 
 class EventsService:
     """Service de gestion des événements."""
 
     def __init__(self, session: Session):
-        """Initialise le service avec une session SQLAlchemy."""
+        """Initialise le service avec une session SQLAlchemy et les services associés."""
         self.session = session
+        self.collaborators_service = CollaboratorsService(session)
+        self.contracts_service = ContractsService(session)
 
     def list_events(self):
         """Retourne la liste de tous les événements."""
         return self.session.query(Event).all()
+    
+    def get_event_by_id(self, event_id):
+        """Retourne un événement par son ID. Retourne None si l'événement n'existe pas."""
+        return self.session.query(Event).filter_by(id=event_id).first()
 
     def add_event(self, commercial_id, title, start_date, end_date, location, contract_id):
         """Crée un événement lié à un contrat signé. Retourne None si le contrat est introuvable ou non signé."""
-        contract = self.session.query(Contract).filter_by(id=contract_id).first()
-
+        contract = self.contracts_service.get_contract_by_id(contract_id)
         if not contract:
             return None
-
+        if not contract.is_signed:
+            return None
+        
         new_event = Event(
             title=title,
             location=location,
@@ -36,7 +45,7 @@ class EventsService:
         return new_event
 
     def update_event(self, event_id, **kwargs):
-        event = self.session.query(Event).filter_by(id=event_id).first()
+        event = self.get_event_by_id(event_id)
         if not event:
             return None
         if "start_date" in kwargs or "end_date" in kwargs:
@@ -50,12 +59,12 @@ class EventsService:
 
     def assign_support(self, event_id, collaborator_email):
         """Assigne un collaborateur support à un événement. Retourne None si l'événement ou le collaborateur est introuvable."""
-        collaborator = self.session.query(Collaborator).filter_by(email=collaborator_email).first()
+        collaborator = self.collaborators_service.get_collaborator_by_email(collaborator_email)
         if not collaborator:
             return None
         if collaborator.role != RoleEnum.support:
             return None
-        event = self.session.query(Event).filter_by(id=event_id).first()
+        event = self.get_event_by_id(event_id)
         if not event:
             return None
         event.assign_support(collaborator)

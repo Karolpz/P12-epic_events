@@ -11,10 +11,18 @@ class ClientsService:
     def list_clients(self):
         """Retourne la liste de tous les clients."""
         return self.session.query(Client).all()
+    
+    def get_client_by_email(self, email):
+        """Retourne un client par son email. Retourne None si le client n'existe pas."""
+        return self.session.query(Client).filter_by(email=email).first()
+
+    def get_client_by_id(self, client_id):
+        """Retourne un client par son ID. Retourne None si le client n'existe pas."""
+        return self.session.query(Client).filter_by(id=client_id).first()
 
     def add_client(self, first_name, last_name, email, phone_number, company, collaborator_id):
         """Crée un nouveau client. Retourne None si l'email est déjà utilisé."""
-        if self.session.query(Client).filter(Client.email == email).first():
+        if self.get_client_by_email(email):
             return None
 
         new_client = Client(
@@ -31,7 +39,7 @@ class ClientsService:
 
     def update_client(self, email, **kwargs):
         """Met à jour les champs d'un client identifié par son email. Retourne None si introuvable."""
-        client = self.session.query(Client).filter_by(email=email).first()
+        client = self.get_client_by_email(email)
         if not client:
             return None
         for key, value in kwargs.items():

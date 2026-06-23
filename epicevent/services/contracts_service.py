@@ -1,20 +1,26 @@
-from epicevent.models import Contract, Client
+from epicevent.models import Contract
 from sqlalchemy.orm import Session
+from epicevent.services.clients_service import ClientsService
 
 class ContractsService:
     """Service de gestion des contrats."""
 
     def __init__(self, session: Session):
-        """Initialise le service avec une session SQLAlchemy."""
+        """Initialise le service avec une session SQLAlchemy et le service des clients."""
         self.session = session
+        self.clients_service = ClientsService(session)
 
     def list_contracts(self):
         """Retourne la liste de tous les contrats."""
         return self.session.query(Contract).all()
+    
+    def get_contract_by_id(self, contract_id):
+        """Retourne un contrat par son ID. Retourne None si le contrat n'existe pas."""
+        return self.session.query(Contract).filter_by(id=contract_id).first()
 
     def add_contract(self, client_email, collaborator_id, amount):
         """Crée un contrat non signé pour un client existant. Retourne None si le client est introuvable."""
-        client = self.session.query(Client).filter(Client.email == client_email).first()
+        client = self.clients_service.get_client_by_email(client_email)
 
         if not client:
             return None
@@ -22,8 +28,6 @@ class ContractsService:
         new_contract = Contract(
             client_id=client.id,
             collaborator_id=collaborator_id,
-            amount=amount,
-            amount_to_pay=amount,
             is_signed=False
         )
         new_contract.set_amount(amount)
@@ -36,7 +40,7 @@ class ContractsService:
 
         Les champs `amount` et `amount_to_pay` sont traités séparément via les méthodes du modèle.
         """
-        contract = self.session.query(Contract).filter_by(id=contract_id).first()
+        contract = self.get_contract_by_id(contract_id)
         if not contract:
             return None
         if "amount" in kwargs:
@@ -50,7 +54,7 @@ class ContractsService:
 
     def sign_contract(self, contract_id):
         """Signe un contrat existant. Retourne None si le contrat est introuvable."""
-        contract = self.session.query(Contract).filter_by(id=contract_id).first()
+        contract = self.get_contract_by_id(contract_id)
         if not contract:
             return None
         contract.sign()
