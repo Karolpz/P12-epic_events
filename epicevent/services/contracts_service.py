@@ -17,6 +17,14 @@ class ContractsService:
     def get_contract_by_id(self, contract_id):
         """Retourne un contrat par son ID. Retourne None si le contrat n'existe pas."""
         return self.session.query(Contract).filter_by(id=contract_id).first()
+    
+    def list_unsigned_contracts(self):
+        """Retourne la liste des contrats non signés."""
+        return self.session.query(Contract).filter_by(is_signed=False).all()
+    
+    def list_unpaid_contracts(self):
+        """Retourne la liste des contrats non payés."""
+        return self.session.query(Contract).filter(Contract.amount_to_pay > 0).all()
 
     def add_contract(self, client_email, collaborator_id, amount):
         """Crée un contrat non signé pour un client existant. Retourne None si le client est introuvable."""

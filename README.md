@@ -211,6 +211,9 @@ epicevent clients update          # Modifier un client (responsable uniquement)
 
 ```bash
 epicevent contracts list          # Lister tous les contrats
+epicevent contracts list           # Lister tous les contrats
+epicevent contracts list --unsigned # Contrats non signés (commercial)
+epicevent contracts list --unpaid   # Contrats non payés (commercial)
 epicevent contracts add           # Ajouter un contrat (gestion)
 epicevent contracts update        # Modifier un contrat (propriétaire uniquement)
 epicevent contracts sign          # Signer un contrat (gestion)
@@ -220,6 +223,8 @@ epicevent contracts sign          # Signer un contrat (gestion)
 
 ```bash
 epicevent events list             # Lister tous les événements
+epicevent events list --no-support # Événements sans support (gestion)
+epicevent events list --mine       # Mes événements (support)
 epicevent events add              # Créer un événement (commercial)
 epicevent events update           # Modifier un événement (support assigné)
 epicevent events assign           # Assigner un support à un événement (gestion)

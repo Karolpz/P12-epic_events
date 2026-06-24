@@ -56,14 +56,14 @@ class TestUpdateCollaborator:
 
 class TestDeleteCollaborator:
     def test_delete_existing_returns_true(self, service, gestion_user):
-        result = service.delete_collaborator(gestion_user.id)
+        result = service.delete_collaborator(gestion_user.email)
         assert result is True
 
     def test_delete_removes_from_db(self, service, session, gestion_user):
         collab_id = gestion_user.id
-        service.delete_collaborator(collab_id)
+        service.delete_collaborator(gestion_user.email)
         assert session.query(Collaborator).filter_by(id=collab_id).first() is None
 
     def test_delete_unknown_id_returns_false(self, service):
-        result = service.delete_collaborator(99999)
+        result = service.delete_collaborator("unknown@epic.io")
         assert result is False

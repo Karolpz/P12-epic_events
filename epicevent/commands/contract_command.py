@@ -13,39 +13,64 @@ def contracts():
 
 @contracts.command()
 @login_required
-def list():
+@click.option("--unsigned", is_flag=True, default=False, help="Contrats non signés uniquement")
+@click.option("--unpaid", is_flag=True, default=False, help="Contrats non entièrement payés uniquement")
+def list(unsigned, unpaid):
+    payload = verify_token(get_token())
+    collaborator_role = payload["role"]
+
+    if (unsigned or unpaid) and collaborator_role != "commercial":
+        click.echo(click.style("Ces options sont réservées au commercial.", fg="red"))
+        return
+
     with Session() as session:
         service = ContractsService(session)
-        contract_list = service.list_contracts()
+
+        if unsigned:
+            contract_list = service.list_unsigned_contracts()
+        elif unpaid:
+            contract_list = service.list_unpaid_contracts()
+        else:
+            contract_list = service.list_contracts()
+
         if not contract_list:
             click.echo(click.style("Aucun contrat trouvé.", fg="yellow"))
             return
 
         click.echo(click.style("Liste des contrats :", fg="green"))
         for contract in contract_list:
-            click.echo(f"- Contrat n° : {contract.id}, Mail du client: {contract.client.email}, Montant: {contract.amount}, Commercial: {contract.client.collaborator.name} - Signé: {'Oui' if contract.is_signed else 'Non'}")
-
+            click.echo(
+                f"- Contrat n° : {contract.id}, "
+                f"Client: {contract.client.email}, "
+                f"Montant: {contract.amount}, "
+                f"Restant: {contract.amount_to_pay}, "
+                f"Commercial: {contract.client.collaborator.name}, "
+                f"Signé: {'Oui' if contract.is_signed else 'Non'}"
+            )
 
 @contracts.command()
 @login_required
 @roles_required("gestion")
 def add():
-    client_mail = click.prompt("Email du client", type=str)
     valid_user = verify_token(get_token())
     collaborator_id = valid_user["id"]
-    amount = click.prompt("Montant du contrat", type=float)
+    client_mail = click.prompt("Email du client", type=str)
 
     with Session() as session:
         service = ContractsService(session)
+        client = service.clients_service.get_client_by_email(client_mail)
+        if not client:
+            click.echo(click.style("Client introuvable.", fg="red"))
+            return
+
+        amount = click.prompt("Montant du contrat", type=float)
+
         try:
             contract = service.add_contract(client_mail, collaborator_id, amount)
         except Exception as e:
             click.echo(click.style(str(e), fg="red"))
             return
-        if not contract:
-            click.echo(click.style("Client introuvable.", fg="red"))
-            return
-        click.echo(click.style(f"Contrat ajouté : {contract.id}", fg="green"))
+        click.echo(click.style(f"Contrat n° {contract.id} ajouté.", fg="green"))
 
 
 @contracts.command()
@@ -66,17 +91,22 @@ def update():
             click.echo(click.style("Contrat non trouvé ou accès refusé.", fg="red"))
             return
 
+        click.echo(f"Contrat actuel — Montant: {contract.amount}, Restant: {contract.amount_to_pay}, Payé: {contract.amount - contract.amount_to_pay}")
         click.echo("Laissez vide pour ne pas modifier")
-        amount = click.prompt("Nouveau montant", default="")
-        amount_to_pay = click.prompt("Montant restant", default="")
+        amount = click.prompt("Nouveau montant total", default="")
+        amount_to_pay = click.prompt("Nouveau montant restant", default="")
 
         kwargs = {}
-        if amount: 
+        if amount:
             kwargs["amount"] = float(amount)
-        if amount_to_pay: 
+        if amount_to_pay:
             kwargs["amount_to_pay"] = float(amount_to_pay)
 
-        contract_service.update_contract(contract_id, **kwargs)
+        try:
+            contract_service.update_contract(contract_id, **kwargs)
+        except Exception as e:
+            click.echo(click.style(str(e), fg="red"))
+            return
         click.echo(click.style("Contrat mis à jour !", fg="green"))
 
 

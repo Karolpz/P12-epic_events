@@ -18,17 +18,42 @@ def events():
 
 @events.command()
 @login_required
-def list():
+@click.option("--no-support", is_flag=True, help="Liste uniquement les événements sans support assigné.")
+@click.option("--mine", is_flag=True, help="Liste uniquement mes évènements")
+def list(no_support, mine):
+    payload = verify_token(get_token())
+    collaborator_id = payload["id"]
+    collaborator_role = payload["role"]
+
+    if no_support and collaborator_role != "gestion":
+        click.echo(click.style("Cette option est réservée à la gestion.", fg="red"))
+        return
+    if mine and collaborator_role != "support":
+        click.echo(click.style("Cette option est réservée au support.", fg="red"))
+        return
+
     with Session() as session:
         service = EventsService(session)
-        event_list = service.list_events()
+
+        if no_support:
+            event_list = service.list_events_without_support()
+        elif mine:
+            event_list = service.list_events_by_support(collaborator_id)
+        else:
+            event_list = service.list_events()
+
         if not event_list:
             click.echo(click.style("Aucun événement trouvé.", fg="yellow"))
             return
 
         click.echo(click.style("Liste des événements :", fg="green"))
         for event in event_list:
-            click.echo(f"- Événement n° : {event.id}, Titre: {event.title}, Lieu: {event.location}, Support: {event.support.name if event.support else 'Non assigné'}")
+            click.echo(
+                f"- Événement n° : {event.id}, "
+                f"Titre: {event.title}, "
+                f"Lieu: {event.location}, "
+                f"Support: {event.support.name if event.support else 'Non assigné'}"
+            )
 
 
 @events.command()
@@ -62,7 +87,7 @@ def add():
         service = EventsService(session)
         event = service.add_event(commercial_id, title, start_date, end_date, location, contract_id)
         if event:
-            click.echo(click.style(f"Événement ajouté n° : {event.id}", fg="green"))
+            click.echo(click.style(f"Événement n° {event.id} ajouté.", fg="green"))
         else:
             click.echo(click.style("Contrat introuvable ou non signé.", fg="red"))
 

@@ -19,6 +19,14 @@ class EventsService:
     def get_event_by_id(self, event_id):
         """Retourne un événement par son ID. Retourne None si l'événement n'existe pas."""
         return self.session.query(Event).filter_by(id=event_id).first()
+    
+    def list_events_without_support(self):
+        """Retourne la liste des événements sans collaborateur support assigné."""
+        return self.session.query(Event).filter_by(support_id=None).all()
+    
+    def list_events_by_support(self, support_id):
+        """Retourne la liste des événements assignés à un collaborateur support spécifique."""
+        return self.session.query(Event).filter_by(support_id=support_id).all()
 
     def add_event(self, commercial_id, title, start_date, end_date, location, contract_id):
         """Crée un événement lié à un contrat signé. Retourne None si le contrat est introuvable ou non signé."""
