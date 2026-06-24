@@ -244,7 +244,7 @@ pytest
 pytest --cov=epicevent --cov-report=term-missing
 ```
 
-Coverage actuel : **96%** sur models, services et utils.
+Coverage actuel : **94%** sur models, services et utils.
 
 ## Qualité du code
 
