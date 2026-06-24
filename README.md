@@ -211,7 +211,6 @@ epicevent clients update          # Modifier un client (responsable uniquement)
 
 ```bash
 epicevent contracts list          # Lister tous les contrats
-epicevent contracts list           # Lister tous les contrats
 epicevent contracts list --unsigned # Contrats non signés (commercial)
 epicevent contracts list --unpaid   # Contrats non payés (commercial)
 epicevent contracts add           # Ajouter un contrat (gestion)
