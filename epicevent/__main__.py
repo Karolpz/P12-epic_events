@@ -30,7 +30,6 @@ sentry_sdk.init(
 #     session.add(alice)
 #     session.commit()
 
-
 @click.group()
 def cli():
     pass

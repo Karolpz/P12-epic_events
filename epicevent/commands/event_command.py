@@ -71,6 +71,9 @@ def add():
         if not contract or not contract.is_signed:
             click.echo(click.style("Contrat introuvable ou non signé.", fg="red"))
             return
+        if contract.collaborator_id != commercial_id:
+            click.echo(click.style("Vous n'êtes pas autorisé à ajouter un événement pour ce contrat.", fg="red"))
+            return
 
         title = click.prompt("Titre de l'événement")
         location = click.prompt("Lieu de l'événement")
